@@ -334,30 +334,67 @@ async def webhook(request: Request):
             return {"ok": True}
 
         if step == "service":
-            state["service"] = text
-            state["step"] = "datetime"
-            await send_message(
-                chat_id,
-                decorate_with_name(
-                    "تاریخ و ساعت ترجیحی را بفرمایید (مثلاً: دوشنبه ساعت ۶ عصر):",
-                    user_name,
-                    user_lang,
-                ),
-                reply_markup=main_keyboard(),
-            )
-            return {"ok": True}
+    state["service"] = text
+    state["step"] = "doctor"
+    await send_message(
+        chat_id,
+        decorate_with_name(
+            "آیا دکتر خاصی مدنظر دارید؟\n"
+            "لطفاً نام دکتر را بنویسید یا اگر فرقی نمی‌کند، بنویسید «فرقی نمی‌کند».",
+            user_name,
+            user_lang,
+        ),
+        reply_markup=main_keyboard(),
+    )
+    return {"ok": True}
 
-        if step == "datetime":
-            state["datetime"] = text
+if step == "doctor":
+    state["doctor"] = text
+    state["step"] = "datetime"
+    await send_message(
+        chat_id,
+        decorate_with_name(
+            "تاریخ و ساعت ترجیحی را بفرمایید (مثلاً: دوشنبه ساعت ۶ عصر):",
+            user_name,
+            user_lang,
+        ),
+        reply_markup=main_keyboard(),
+    )
+    return {"ok": True}
 
-            summary = (
-                "درخواست نوبت جدید برای Gemini Medical Center:\n\n"
-                f"نام: {profile.get('name')}\n"
-                f"شماره تماس: {profile.get('phone')}\n"
-                f"خدمت درخواستی: {state.get('service')}\n"
-                f"زمان پیشنهادی: {state.get('datetime')}\n"
-                f"Telegram chat id: {chat_id}"
-            )
+if step == "datetime":
+    state["datetime"] = text
+
+    summary = (
+        "درخواست نوبت جدید برای Gemini Medical Center:\n\n"
+        f"نام: {profile.get('name')}\n"
+        f"شماره تماس: {profile.get('phone')}\n"
+        f"خدمت درخواستی: {state.get('service')}\n"
+        f"دکتر مدنظر: {state.get('doctor')}\n"
+        f"زمان پیشنهادی: {state.get('datetime')}\n"
+        f"Telegram chat id: {chat_id}"
+    )
+
+    await send_message(
+        chat_id,
+        decorate_with_name(
+            summary
+            + "\n\nدرخواست شما ثبت شد. منشی مرکز برای تأیید نهایی با شما تماس خواهد گرفت.",
+            user_name,
+            user_lang,
+        ),
+        reply_markup=main_keyboard(),
+    )
+
+    if ADMIN_CHAT_ID:
+        try:
+            await send_message(int(ADMIN_CHAT_ID), summary)
+        except Exception:
+            pass
+
+    del BOOKING_STATE[chat_id]
+    return {"ok": True}
+
 
             await send_message(
                 chat_id,
@@ -430,17 +467,19 @@ async def webhook(request: Request):
         return {"ok": True}
 
     if text == "رزرو نوبت":
-        BOOKING_STATE[chat_id] = {"step": "service"}
-        await send_message(
-            chat_id,
-            decorate_with_name(
-                "برای چه خدمتی نوبت می‌خواهید؟ (مثلاً: جرمگیری، چکاپ، ایمپلنت و ...)",
-                user_name,
-                user_lang,
-            ),
-            reply_markup=main_keyboard(),
-        )
-        return {"ok": True}
+    BOOKING_STATE[chat_id] = {"step": "service"}
+    await send_message(
+        chat_id,
+        decorate_with_name(
+            "برای چه خدمتی از دندان‌پزشکان Gemini Medical Center نوبت می‌خواهید؟ "
+            "(مثلاً: جرمگیری، چکاپ، ایمپلنت و ...)",
+            user_name,
+            user_lang,
+        ),
+        reply_markup=main_keyboard(),
+    )
+    return {"ok": True}
+
 
     if text == "سوال از منشی":
         msg = "سوال خود را درباره خدمات، قیمت‌ها یا نحوه رزرو بنویسید.\nمنشی هوشمند براساس اطلاعات کلینیک پاسخ می‌دهد."
