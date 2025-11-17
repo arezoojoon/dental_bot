@@ -19,10 +19,10 @@ if not GOOGLE_API_KEY:
 # Optional: admin notifications
 ADMIN_CHAT_ID = os.getenv("ADMIN_CHAT_ID")  # e.g. "123456789"
 
-# In-memory states
+# In-memory states (for demo only)
 USER_PROFILE: dict[int, dict] = {}   # chat_id -> {name, phone, lang}
 REG_STATE: dict[int, dict] = {}      # chat_id -> {step, lang?, name?, phone?}
-BOOKING_STATE: dict[int, dict] = {}  # chat_id -> {step, ...}
+BOOKING_STATE: dict[int, dict] = {}  # chat_id -> {step, service?, doctor?, datetime?}
 
 
 # -----------------------------------------
@@ -53,7 +53,6 @@ def language_keyboard() -> dict:
 
 
 def main_keyboard() -> dict:
-    # دکمه‌ها را فعلاً فارسی نگه داشتیم؛ برای دمو با دکتر مهم منطق است
     return {
         "keyboard": [
             [{"text": "خدمات"}, {"text": "ساعات کاری"}],
@@ -68,7 +67,7 @@ def map_language_choice(text: str) -> str | None:
     t = text.strip().lower()
     if "farsi" in t or "فارسی" in t:
         return "fa"
-    if "english" in t or "en" == t:
+    if "english" in t or t == "en":
         return "en"
     if "arabic" in t or "العربية" in t or "عرب" in t:
         return "ar"
@@ -91,7 +90,6 @@ def decorate_with_name(raw_answer: str, name: str | None, lang: str | None) -> s
         return f"عزيزي/عزيزتي {name}، {raw_answer}"
     if lang == "ru":
         return f"{name}, {raw_answer}"
-    # default English
     return f"Dear {name}, {raw_answer}"
 
 
@@ -119,7 +117,6 @@ If user asks for diagnosis, clearly say that final diagnosis needs a dentist vis
 Be short, friendly and professional like a real receptionist.
 """
 
-    # add user context
     context_prefix = ""
     if name:
         context_prefix += f"Patient name: {name}.\n"
@@ -173,7 +170,7 @@ async def webhook(request: Request):
         return {"ok": True}
 
     # ---------------------------------
-    # /start همیشه ثبت‌نام را از اول شروع می‌کند
+    # /start: reset profile and start registration
     # ---------------------------------
     if text == "/start":
         USER_PROFILE.pop(chat_id, None)
@@ -189,13 +186,13 @@ async def webhook(request: Request):
         return {"ok": True}
 
     # ---------------------------------
-    # اگر در جریان ثبت‌نام هستیم (زبان / نام / شماره)
+    # Registration flow (language / name / phone)
     # ---------------------------------
     if chat_id in REG_STATE:
         state = REG_STATE[chat_id]
         step = state["step"]
 
-        # انتخاب زبان
+        # Language selection
         if step == "lang":
             lang_code = map_language_choice(text)
             if not lang_code:
@@ -216,13 +213,13 @@ async def webhook(request: Request):
                 msg = "من فضلك اكتب اسمك:"
             elif lang_code == "ru":
                 msg = "Пожалуйста, введите ваше имя:"
-            else:  # en
+            else:
                 msg = "Please enter your name:"
 
             await send_message(chat_id, msg)
             return {"ok": True}
 
-        # دریافت نام
+        # Name
         if step == "name":
             state["name"] = text
             state["step"] = "phone"
@@ -240,11 +237,10 @@ async def webhook(request: Request):
             await send_message(chat_id, msg)
             return {"ok": True}
 
-        # دریافت شماره
+        # Phone
         if step == "phone":
             state["phone"] = text
 
-            # ثبت پروفایل
             USER_PROFILE[chat_id] = {
                 "name": state.get("name"),
                 "phone": state.get("phone"),
@@ -255,7 +251,6 @@ async def webhook(request: Request):
 
             REG_STATE.pop(chat_id, None)
 
-            # پیام خوش‌آمد بر اساس زبان
             if lang_code == "fa":
                 welcome = (
                     f"{name} عزیز، ثبت‌نام شما انجام شد.\n"
@@ -281,7 +276,7 @@ async def webhook(request: Request):
             return {"ok": True}
 
     # ---------------------------------
-    # اگر هنوز پروفایل نداریم، اول مجبورش می‌کنیم ثبت‌نام کند
+    # If no profile yet → force registration
     # ---------------------------------
     if chat_id not in USER_PROFILE:
         REG_STATE[chat_id] = {"step": "lang"}
@@ -293,18 +288,19 @@ async def webhook(request: Request):
         )
         return {"ok": True}
 
-    # از اینجا به بعد، پروفایل داریم
+    # From here on, profile is available
     profile = get_profile(chat_id)
     user_name = profile.get("name")
     user_lang = profile.get("lang", "fa")
 
     # ---------------------------------
-    # اگر در فرآیند رزرو نوبت هستیم
+    # Booking flow
     # ---------------------------------
     if chat_id in BOOKING_STATE and not text.startswith("/"):
         state = BOOKING_STATE[chat_id]
         step = state["step"]
 
+        # Cancel booking
         if text.lower() in ["لغو", "انصراف", "cancel"]:
             del BOOKING_STATE[chat_id]
             await send_message(
@@ -318,14 +314,15 @@ async def webhook(request: Request):
             )
             return {"ok": True}
 
-        if step == "name_confirm":
-            # این مرحله را می‌توانیم رد کنیم یا اگر خواستیم نام را آپدیت کنیم.
-            # فعلاً فقط ادامه می‌دهیم به مرحله بعد.
-            state["step"] = "service"
+        # Which service
+        if step == "service":
+            state["service"] = text
+            state["step"] = "doctor"
             await send_message(
                 chat_id,
                 decorate_with_name(
-                    "برای چه خدمتی نوبت می‌خواهید؟ (مثلاً: جرمگیری، چکاپ، ایمپلنت و ...)",
+                    "آیا دکتر خاصی مدنظر دارید؟\n"
+                    "لطفاً نام دکتر را بنویسید یا اگر فرقی نمی‌کند، بنویسید «فرقی نمی‌کند».",
                     user_name,
                     user_lang,
                 ),
@@ -333,68 +330,34 @@ async def webhook(request: Request):
             )
             return {"ok": True}
 
-        if step == "service":
-    state["service"] = text
-    state["step"] = "doctor"
-    await send_message(
-        chat_id,
-        decorate_with_name(
-            "آیا دکتر خاصی مدنظر دارید؟\n"
-            "لطفاً نام دکتر را بنویسید یا اگر فرقی نمی‌کند، بنویسید «فرقی نمی‌کند».",
-            user_name,
-            user_lang,
-        ),
-        reply_markup=main_keyboard(),
-    )
-    return {"ok": True}
+        # Which doctor
+        if step == "doctor":
+            state["doctor"] = text
+            state["step"] = "datetime"
+            await send_message(
+                chat_id,
+                decorate_with_name(
+                    "تاریخ و ساعت ترجیحی را بفرمایید (مثلاً: دوشنبه ساعت ۶ عصر):",
+                    user_name,
+                    user_lang,
+                ),
+                reply_markup=main_keyboard(),
+            )
+            return {"ok": True}
 
-if step == "doctor":
-    state["doctor"] = text
-    state["step"] = "datetime"
-    await send_message(
-        chat_id,
-        decorate_with_name(
-            "تاریخ و ساعت ترجیحی را بفرمایید (مثلاً: دوشنبه ساعت ۶ عصر):",
-            user_name,
-            user_lang,
-        ),
-        reply_markup=main_keyboard(),
-    )
-    return {"ok": True}
+        # Preferred date/time
+        if step == "datetime":
+            state["datetime"] = text
 
-if step == "datetime":
-    state["datetime"] = text
-
-    summary = (
-        "درخواست نوبت جدید برای Gemini Medical Center:\n\n"
-        f"نام: {profile.get('name')}\n"
-        f"شماره تماس: {profile.get('phone')}\n"
-        f"خدمت درخواستی: {state.get('service')}\n"
-        f"دکتر مدنظر: {state.get('doctor')}\n"
-        f"زمان پیشنهادی: {state.get('datetime')}\n"
-        f"Telegram chat id: {chat_id}"
-    )
-
-    await send_message(
-        chat_id,
-        decorate_with_name(
-            summary
-            + "\n\nدرخواست شما ثبت شد. منشی مرکز برای تأیید نهایی با شما تماس خواهد گرفت.",
-            user_name,
-            user_lang,
-        ),
-        reply_markup=main_keyboard(),
-    )
-
-    if ADMIN_CHAT_ID:
-        try:
-            await send_message(int(ADMIN_CHAT_ID), summary)
-        except Exception:
-            pass
-
-    del BOOKING_STATE[chat_id]
-    return {"ok": True}
-
+            summary = (
+                "درخواست نوبت جدید برای Gemini Medical Center:\n\n"
+                f"نام: {profile.get('name')}\n"
+                f"شماره تماس: {profile.get('phone')}\n"
+                f"خدمت درخواستی: {state.get('service')}\n"
+                f"دکتر مدنظر: {state.get('doctor')}\n"
+                f"زمان پیشنهادی: {state.get('datetime')}\n"
+                f"Telegram chat id: {chat_id}"
+            )
 
             await send_message(
                 chat_id,
@@ -417,7 +380,7 @@ if step == "datetime":
             return {"ok": True}
 
     # ---------------------------------
-    # دکمه‌ها و منوی اصلی
+    # Main menu buttons
     # ---------------------------------
     if text == "خدمات":
         msg = (
@@ -467,22 +430,24 @@ if step == "datetime":
         return {"ok": True}
 
     if text == "رزرو نوبت":
-    BOOKING_STATE[chat_id] = {"step": "service"}
-    await send_message(
-        chat_id,
-        decorate_with_name(
-            "برای چه خدمتی از دندان‌پزشکان Gemini Medical Center نوبت می‌خواهید؟ "
-            "(مثلاً: جرمگیری، چکاپ، ایمپلنت و ...)",
-            user_name,
-            user_lang,
-        ),
-        reply_markup=main_keyboard(),
-    )
-    return {"ok": True}
-
+        BOOKING_STATE[chat_id] = {"step": "service"}
+        await send_message(
+            chat_id,
+            decorate_with_name(
+                "برای چه خدمتی از دندان‌پزشکان Gemini Medical Center نوبت می‌خواهید؟ "
+                "(مثلاً: جرمگیری، چکاپ، ایمپلنت و ...)",
+                user_name,
+                user_lang,
+            ),
+            reply_markup=main_keyboard(),
+        )
+        return {"ok": True}
 
     if text == "سوال از منشی":
-        msg = "سوال خود را درباره خدمات، قیمت‌ها یا نحوه رزرو بنویسید.\nمنشی هوشمند براساس اطلاعات کلینیک پاسخ می‌دهد."
+        msg = (
+            "سوال خود را درباره خدمات، قیمت‌ها یا نحوه رزرو بنویسید.\n"
+            "منشی هوشمند براساس اطلاعات کلینیک پاسخ می‌دهد."
+        )
         await send_message(
             chat_id,
             decorate_with_name(msg, user_name, user_lang),
@@ -491,7 +456,7 @@ if step == "datetime":
         return {"ok": True}
 
     # ---------------------------------
-    # سایر پیام‌ها → Gemini
+    # All other messages → Gemini
     # ---------------------------------
     raw_answer = await ask_gemini(text, user_name, user_lang)
     final_answer = decorate_with_name(raw_answer, user_name, user_lang)
