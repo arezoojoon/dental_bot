@@ -28,16 +28,16 @@ if not TELEGRAM_TOKEN or not GOOGLE_API_KEY:
     raise RuntimeError("Missing TELEGRAM_BOT_TOKEN or GOOGLE_API_KEY")
 
 # -----------------------------------------
-# LOCALIZATION (4 Languages)
+# TRANSLATIONS (4 Languages)
 # -----------------------------------------
 TRANS = {
     "fa": {
-        "buttons": [["خدمات", "ساعات کاری"], ["رزرو نوبت", "آدرس مرکز"], ["سوال از منشی"]],
+        "buttons": [["خدمات", "ساعات کاری"], ["رزرو نوبت", "آدرس مرکز"], ["سوال یا ارسال عکس"]],
         "share_contact": "📱 ارسال شماره تماس (تأیید هویت)",
-        "name_prompt": "لطفاً نام و نام خانوادگی خود را وارد کنید:",
+        "name_prompt": "✅ زبان فارسی انتخاب شد.\n\nلطفاً **نام و نام خانوادگی** خود را تایپ کنید:",
         "whatsapp_prompt": "لطفاً شماره واتساپ خود را بنویسید (مثال: 0912...):",
         "phone_prompt": "برای تکمیل ثبت‌نام، لطفاً روی دکمه زیر بزنید تا شماره شما تأیید شود:",
-        "use_button_error": "⛔️ لطفاً شماره را تایپ نکنید. حتماً از دکمه «ارسال شماره تماس» استفاده کنید.",
+        "use_button_error": "⛔️ لطفاً شماره را تایپ نکنید. حتماً از دکمه «ارسال شماره تماس» در پایین صفحه استفاده کنید.",
         "reg_complete": "ثبت‌نام با موفقیت انجام شد. خوش آمدید 🌹",
         "greeting": "{name} عزیز، ",
         "services_reply": "خدمات کلینیک:\n• ایمپلنت و کاشت دندان\n• ارتودنسی\n• لمینت و کامپوزیت\n• جرمگیری و بلیچینگ\n• عصب‌کشی و ترمیم",
@@ -54,12 +54,14 @@ TRANS = {
         "no_slots": "در حال حاضر وقت خالی برای ۷ روز آینده موجود نیست. لطفاً با پذیرش تماس بگیرید.",
         "cancelled": "عملیات لغو شد.",
         "reminder_msg": "{name} عزیز، یادآوری: شما فردا ({date}) ساعت {time} نوبت دندانپزشکی دارید.",
-        "ai_error": "متأسفانه سیستم هوش مصنوعی در حال حاضر پاسخگو نیست."
+        "ai_error": "متأسفانه سیستم هوش مصنوعی پاسخگو نیست. لطفاً بعداً تلاش کنید.",
+        "ask_prompt": "لطفاً سوال خود را بنویسید یا **عکس دندان** خود را ارسال کنید تا هوش مصنوعی بررسی کند:",
+        "name_error": "⛔️ لطفاً روی دکمه‌های زبان کلیک نکنید. نام خود را تایپ کنید:"
     },
     "en": {
-        "buttons": [["Services", "Working Hours"], ["Book Appointment", "Location"], ["Ask Receptionist"]],
+        "buttons": [["Services", "Working Hours"], ["Book Appointment", "Location"], ["Question or Photo"]],
         "share_contact": "📱 Share Contact",
-        "name_prompt": "Please enter your full name:",
+        "name_prompt": "✅ English selected.\n\nPlease type your **Full Name**:",
         "whatsapp_prompt": "Please enter your WhatsApp number:",
         "phone_prompt": "Please tap the button below to verify your phone number:",
         "use_button_error": "⛔️ Please do not type. Use the 'Share Contact' button below.",
@@ -79,12 +81,14 @@ TRANS = {
         "no_slots": "No slots available for the next 7 days. Please call reception.",
         "cancelled": "Cancelled.",
         "reminder_msg": "Dear {name}, Reminder: You have an appointment tomorrow ({date}) at {time}.",
-        "ai_error": "AI system is currently unavailable."
+        "ai_error": "AI service unavailable. Please try again later.",
+        "ask_prompt": "Please type your question or **send a dental photo** for AI analysis:",
+        "name_error": "⛔️ Please do not click the language buttons. Type your name:"
     },
     "ar": {
-        "buttons": [["الخدمات", "ساعات العمل"], ["حجز موعد", "العنوان"], ["سؤال الاستقبال"]],
+        "buttons": [["الخدمات", "ساعات العمل"], ["حجز موعد", "العنوان"], ["سؤال أو صورة"]],
         "share_contact": "📱 مشاركة رقم الهاتف",
-        "name_prompt": "الرجاء إدخال اسمك الكامل:",
+        "name_prompt": "✅ تم اختيار العربية.\n\nالرجاء كتابة **اسمك الكامل**:",
         "whatsapp_prompt": "الرجاء إدخال رقم الواتساب:",
         "phone_prompt": "الرجاء الضغط على الزر أدناه لتأكيد رقم هاتفك:",
         "use_button_error": "⛔️ الرجاء عدم الكتابة. استخدم زر 'مشاركة رقم الهاتف'.",
@@ -104,12 +108,14 @@ TRANS = {
         "no_slots": "لا توجد مواعيد متاحة للأيام السبعة القادمة.",
         "cancelled": "تم الإلغاء.",
         "reminder_msg": "عزيزي {name}، تذكير: لديك موعد غداً ({date}) الساعة {time}.",
-        "ai_error": "نظام الذكاء الاصطناعي غير متاح حالياً."
+        "ai_error": "نظام الذكاء الاصطناعي غير متاح حالياً.",
+        "ask_prompt": "الرجاء كتابة سؤالك أو **إرسال صورة** للأسنان للتحليل:",
+        "name_error": "⛔️ الرجاء عدم الضغط على الأزرار. اكتب اسمك:"
     },
     "ru": {
-        "buttons": [["Услуги", "Часы работы"], ["Записаться", "Адрес"], ["Вопрос ресепшн"]],
+        "buttons": [["Услуги", "Часы работы"], ["Записаться", "Адрес"], ["Вопрос или Фото"]],
         "share_contact": "📱 Отправить контакт",
-        "name_prompt": "Пожалуйста, введите ваше полное имя:",
+        "name_prompt": "✅ Русский язык выбран.\n\nПожалуйста, введите ваше **полное имя**:",
         "whatsapp_prompt": "Введите ваш номер WhatsApp:",
         "phone_prompt": "Нажмите кнопку ниже, чтобы подтвердить ваш номер:",
         "use_button_error": "⛔️ Пожалуйста, не печатайте. Используйте кнопку «Отправить контакт».",
@@ -129,7 +135,9 @@ TRANS = {
         "no_slots": "Нет свободного времени на ближайшие 7 дней.",
         "cancelled": "Отменено.",
         "reminder_msg": "Уважаемый(ая) {name}, напоминание: у вас прием завтра ({date}) в {time}.",
-        "ai_error": "Система ИИ временно недоступна."
+        "ai_error": "Система ИИ временно недоступна.",
+        "ask_prompt": "Пожалуйста, напишите вопрос или **отправьте фото** зубов:",
+        "name_error": "⛔️ Не нажимайте кнопки. Введите имя:"
     }
 }
 
@@ -219,7 +227,7 @@ def mark_reminder_as_sent(slot_id):
 # -----------------------------------------
 async def send_message(chat_id: int, text: str, reply_markup: dict = None):
     try:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=20) as client: # Timeout changed to 20s
             await client.post(f"{TELEGRAM_URL}/sendMessage", json={"chat_id": chat_id, "text": text, "parse_mode": "HTML", "reply_markup": reply_markup})
     except Exception as e: print(f"Send Error: {e}")
 
@@ -233,7 +241,7 @@ async def get_file_info(file_id):
 async def analyze_image_with_gemini(file_path, caption, lang):
     file_url = f"https://api.telegram.org/file/bot{TELEGRAM_TOKEN}/{file_path}"
     try:
-        async with httpx.AsyncClient(timeout=45) as client:
+        async with httpx.AsyncClient(timeout=60) as client: # Increased timeout for image
             img_data = (await client.get(file_url)).content
         b64_img = base64.b64encode(img_data).decode("utf-8")
         
@@ -244,10 +252,14 @@ async def analyze_image_with_gemini(file_path, caption, lang):
         
         url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
         body = {"contents": [{"parts": [{"text": f"{prompt}\nUser Question: {caption}"}, {"inline_data": {"mime_type": "image/jpeg", "data": b64_img}}]}]}
-        async with httpx.AsyncClient(timeout=45) as client:
+        
+        async with httpx.AsyncClient(timeout=60) as client:
             r = await client.post(url, headers={"Content-Type": "application/json", "x-goog-api-key": GOOGLE_API_KEY}, json=body)
+            r.raise_for_status()
             return r.json()["candidates"][0]["content"]["parts"][0]["text"]
-    except: return "Error analyzing image."
+    except Exception as e: 
+        print(f"AI Image Error: {e}")
+        return TRANS[lang]["ai_error"]
 
 async def ask_gemini_text(question, lang):
     url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
@@ -257,8 +269,11 @@ async def ask_gemini_text(question, lang):
     try:
         async with httpx.AsyncClient(timeout=30) as client:
             r = await client.post(url, headers=headers, json=body)
+            r.raise_for_status()
             return r.json()["candidates"][0]["content"]["parts"][0]["text"]
-    except: return "AI Service Unavailable."
+    except Exception as e:
+        print(f"AI Text Error: {e}") 
+        return TRANS[lang]["ai_error"]
 
 # --- KEYBOARDS ---
 def language_keyboard():
@@ -276,14 +291,13 @@ def slots_keyboard(slots):
     kb = []
     row = []
     for s in slots:
-        row.append({"text": s[5:]})
+        row.append({"text": s[5:]}) # Remove year
         if len(row) == 2: kb.append(row); row=[]
     if row: kb.append(row)
     kb.append([{"text": "Cancel"}])
     return {"keyboard": kb, "resize_keyboard": True}
 
 def get_all_menu_buttons():
-    """لیست تمام دکمه‌های منو در تمام زبان‌ها برای جلوگیری از تداخل"""
     all_btns = []
     for l in TRANS:
         for row in TRANS[l]["buttons"]:
@@ -297,7 +311,7 @@ def get_all_menu_buttons():
 def startup_event(): init_db()
 
 @app.get("/")
-async def root(): return {"status": "ok", "message": "Dental Bot V9 (Final)"}
+async def root(): return {"status": "ok", "message": "Dental Bot V10 (Conflict Free)"}
 
 @app.get("/trigger-reminders")
 async def trigger_reminders():
@@ -342,16 +356,15 @@ async def webhook(request: Request):
     lang = user_row[3] if user_row else "en"
     texts = TRANS.get(lang, TRANS["en"])
 
-    # --- GLOBAL INTERCEPTOR (رفع باگ تداخل منو) ---
-    # اگر کاربر در هر مرحله‌ای دکمه منو را زد، آن را به عنوان دستور جدید اجرا کن
+    # --- GLOBAL INTERCEPTOR (Conflict Fix) ---
+    # اگر متن کاربر یکی از دکمه‌های منو باشد، وضعیت قبلی (مثل وسط رزرو) پاک می‌شود
     all_menu_btns = get_all_menu_buttons()
     if text in all_menu_btns:
-        # پاک کردن وضعیت قبلی (مثل وسط رزرو)
         with sqlite3.connect(DB_NAME) as conn: conn.execute("DELETE FROM states WHERE chat_id=?", (chat_id,)); conn.commit()
-        current_state = None 
-        # ادامه می‌دهد تا در هندلر منو پردازش شود
+        current_state = None
+        # ادامه به بخش Menu Handler...
 
-    # --- IMAGE ---
+    # --- IMAGE (TELEDENTISTRY) ---
     if msg.get("photo"):
         if not user_row:
             await send_message(chat_id, "Please register first / لطفاً ثبت‌نام کنید")
@@ -366,10 +379,10 @@ async def webhook(request: Request):
         if f_info:
             res = await analyze_image_with_gemini(f_info["file_path"], msg.get("caption", ""), lang)
             prefix = texts["greeting"].format(name=user_name)
-            await send_message(chat_id, f"{prefix}\n🦷 **AI:**\n{res}{texts['photo_disclaimer']}", reply_markup=main_keyboard(lang))
+            await send_message(chat_id, f"{prefix}\n🦷 **AI Analysis:**\n{res}{texts['photo_disclaimer']}", reply_markup=main_keyboard(lang))
         return {"ok": True}
 
-    # --- CONTACT ---
+    # --- CONTACT VERIFICATION ---
     if current_state and current_state["step"] == "phone":
         if msg.get("contact"):
             contact = msg["contact"]
@@ -419,15 +432,15 @@ async def webhook(request: Request):
                 conn.execute("UPDATE states SET step=?, data=? WHERE chat_id=?", ("name", json.dumps({"lang": sel_lang}), chat_id))
                 conn.commit()
             
-            # حذف کیبورد زبان برای جلوگیری از تداخل
+            # KEYBOARD REMOVED TO PREVENT NAME BUG
             await send_message(chat_id, TRANS[sel_lang]["name_prompt"], reply_markup={"remove_keyboard": True})
             return {"ok": True}
 
         if step == "name":
-            # جلوگیری از ذخیره نام دکمه‌ها به عنوان اسم
+            # NAME FILTER: Prevent language buttons as name
             if text.strip() in ["English", "فارسی / Farsi", "العربية / Arabic", "Русский / Russian"]:
-                await send_message(chat_id, TRANS[data["lang"]]["name_prompt"])
-                return {"ok": True}
+                 await send_message(chat_id, TRANS[data["lang"]]["name_error"])
+                 return {"ok": True}
 
             data["name"] = text
             with sqlite3.connect(DB_NAME) as conn:
@@ -453,7 +466,7 @@ async def webhook(request: Request):
         step = current_state["step"]
         data = current_state["data"]
         
-        if "cancel" in text.lower() or "لغو" in text or "الغاء" in text or "отмена" in text.lower():
+        if "cancel" in text.lower() or "لغو" in text:
              with sqlite3.connect(DB_NAME) as conn: conn.execute("DELETE FROM states WHERE chat_id=?", (chat_id,)); conn.commit()
              await send_message(chat_id, texts["cancelled"], reply_markup=main_keyboard(lang))
              return {"ok": True}
@@ -477,8 +490,8 @@ async def webhook(request: Request):
 
         if step == "slot":
             clicked_slot = text
-            # رفع باگ اسلات‌های نامرئی: جستجوی مستقیم در دیتابیس
             full_slot = None
+            # DB Search for Slot
             with sqlite3.connect(DB_NAME) as conn:
                 found = conn.execute("SELECT datetime_str FROM slots WHERE datetime_str LIKE ? AND is_booked=0", (f"%{clicked_slot}",)).fetchone()
                 if found: full_slot = found[0]
@@ -487,14 +500,14 @@ async def webhook(request: Request):
                 with sqlite3.connect(DB_NAME) as conn: conn.execute("DELETE FROM states WHERE chat_id=?", (chat_id,)); conn.commit()
                 await send_message(chat_id, texts["booking_done"], reply_markup=main_keyboard(lang))
                 if ADMIN_CHAT_ID:
-                    try: await send_message(int(ADMIN_CHAT_ID), f"📅 New Booking ({lang}):\nUser: {user_name}\nWA: {user_row[1]}\nPhone: {user_row[2]}\nTime: {full_slot}")
+                    try: await send_message(int(ADMIN_CHAT_ID), f"📅 New Booking ({lang}):\nUser: {user_name}\nWA: {user_row[1]}\nTime: {full_slot}")
                     except: pass
             else:
                 new_slots = get_available_slots()
                 await send_message(chat_id, texts["slot_taken"], reply_markup=slots_keyboard(new_slots))
             return {"ok": True}
 
-    # --- MAIN MENU ---
+    # --- MAIN MENU HANDLER ---
     flat_btns = [b for r in texts["buttons"] for b in r]
     if text in flat_btns:
         idx = flat_btns.index(text)
@@ -508,9 +521,8 @@ async def webhook(request: Request):
              await send_message(chat_id, f"{prefix}{texts['booking_prompt']}")
         elif idx == 3: # Address
              await send_message(chat_id, f"{prefix}\n{texts['address_reply']}", reply_markup=main_keyboard(lang))
-        elif idx == 4: # Ask
-             hint = {"fa": "سوال خود را تایپ کنید...", "en": "Type your question...", "ar": "اكتب سؤالك...", "ru": "Введите вопрос..."}
-             await send_message(chat_id, hint.get(lang, "Type..."))
+        elif idx == 4: # Ask (Question or Photo)
+             await send_message(chat_id, texts["ask_prompt"], reply_markup=main_keyboard(lang))
         return {"ok": True}
 
     # --- AI CHAT (TEXT FALLBACK) ---
