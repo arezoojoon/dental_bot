@@ -8,6 +8,7 @@ from fastapi import FastAPI, Request
 import httpx
 from dotenv import load_dotenv
 
+# بارگذاری متغیرهای محیطی
 load_dotenv()
 
 app = FastAPI()
@@ -24,8 +25,10 @@ DB_NAME = "dental_bot.db"
 # منطقه زمانی دبی (UTC+4)
 DUBAI_TZ = timezone(timedelta(hours=4))
 
-if not TELEGRAM_TOKEN or not GOOGLE_API_KEY:
-    raise RuntimeError("Missing TELEGRAM_BOT_TOKEN or GOOGLE_API_KEY")
+if not TELEGRAM_TOKEN:
+    print("❌ ERROR: TELEGRAM_BOT_TOKEN is missing!")
+if not GOOGLE_API_KEY:
+    print("❌ ERROR: GOOGLE_API_KEY is missing!")
 
 # -----------------------------------------
 # TRANSLATIONS (4 Languages)
@@ -54,7 +57,6 @@ TRANS = {
         "no_slots": "در حال حاضر وقت خالی برای ۷ روز آینده موجود نیست. لطفاً با پذیرش تماس بگیرید.",
         "cancelled": "عملیات لغو شد.",
         "reminder_msg": "{name} عزیز، یادآوری: شما فردا ({date}) ساعت {time} نوبت دندانپزشکی دارید.",
-        "ai_error": "متأسفانه سیستم هوش مصنوعی پاسخگو نیست. لطفاً بعداً تلاش کنید.",
         "ask_prompt": "لطفاً سوال خود را بنویسید یا **عکس دندان** خود را ارسال کنید تا هوش مصنوعی بررسی کند:",
         "name_error": "⛔️ لطفاً روی دکمه‌های زبان کلیک نکنید. نام خود را تایپ کنید:"
     },
@@ -81,7 +83,6 @@ TRANS = {
         "no_slots": "No slots available for the next 7 days. Please call reception.",
         "cancelled": "Cancelled.",
         "reminder_msg": "Dear {name}, Reminder: You have an appointment tomorrow ({date}) at {time}.",
-        "ai_error": "AI service unavailable. Please try again later.",
         "ask_prompt": "Please type your question or **send a dental photo** for AI analysis:",
         "name_error": "⛔️ Please do not click the language buttons. Type your name:"
     },
@@ -108,7 +109,6 @@ TRANS = {
         "no_slots": "لا توجد مواعيد متاحة للأيام السبعة القادمة.",
         "cancelled": "تم الإلغاء.",
         "reminder_msg": "عزيزي {name}، تذكير: لديك موعد غداً ({date}) الساعة {time}.",
-        "ai_error": "نظام الذكاء الاصطناعي غير متاح حالياً.",
         "ask_prompt": "الرجاء كتابة سؤالك أو **إرسال صورة** للأسنان للتحليل:",
         "name_error": "⛔️ الرجاء عدم الضغط على الأزرار. اكتب اسمك:"
     },
@@ -135,14 +135,13 @@ TRANS = {
         "no_slots": "Нет свободного времени на ближайшие 7 дней.",
         "cancelled": "Отменено.",
         "reminder_msg": "Уважаемый(ая) {name}, напоминание: у вас прием завтра ({date}) в {time}.",
-        "ai_error": "Система ИИ временно недоступна.",
         "ask_prompt": "Пожалуйста, напишите вопрос или **отправьте фото** зубов:",
         "name_error": "⛔️ Не нажимайте кнопки. Введите имя:"
     }
 }
 
 # -----------------------------------------
-# DATABASE & LOGIC
+# DATABASE
 # -----------------------------------------
 def init_db():
     with sqlite3.connect(DB_NAME) as conn:
@@ -227,7 +226,7 @@ def mark_reminder_as_sent(slot_id):
 # -----------------------------------------
 async def send_message(chat_id: int, text: str, reply_markup: dict = None):
     try:
-        async with httpx.AsyncClient(timeout=20) as client: # Timeout changed to 20s
+        async with httpx.AsyncClient(timeout=20) as client:
             await client.post(f"{TELEGRAM_URL}/sendMessage", json={"chat_id": chat_id, "text": text, "parse_mode": "HTML", "reply_markup": reply_markup})
     except Exception as e: print(f"Send Error: {e}")
 
@@ -238,42 +237,43 @@ async def get_file_info(file_id):
             return r.json().get("result")
     except: return None
 
+# تابع کمکی برای دیباگ هوش مصنوعی
+async def call_gemini_api(body):
+    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
+    headers = {"Content-Type": "application/json", "x-goog-api-key": GOOGLE_API_KEY}
+    try:
+        async with httpx.AsyncClient(timeout=45) as client:
+            r = await client.post(url, headers=headers, json=body)
+            r.raise_for_status() # اگر خطا باشد، اکسپشن می‌دهد
+            return r.json()["candidates"][0]["content"]["parts"][0]["text"]
+    except httpx.HTTPStatusError as e:
+        error_msg = f"❌ AI Error {e.response.status_code}: {e.response.text}"
+        print(error_msg)
+        return error_msg # نمایش خطا به کاربر برای دیباگ
+    except Exception as e:
+        print(f"❌ AI Connection Error: {e}")
+        return f"❌ AI Connection Error: {str(e)}"
+
 async def analyze_image_with_gemini(file_path, caption, lang):
     file_url = f"https://api.telegram.org/file/bot{TELEGRAM_TOKEN}/{file_path}"
     try:
-        async with httpx.AsyncClient(timeout=60) as client: # Increased timeout for image
+        async with httpx.AsyncClient(timeout=60) as client:
             img_data = (await client.get(file_url)).content
         b64_img = base64.b64encode(img_data).decode("utf-8")
         
-        prompt = "Analyze this dental image. Identify issues (cavities, gum, alignment). Be professional. NOT a medical diagnosis."
+        prompt = "Analyze this dental image. Identify issues. Be professional. NOT a diagnosis."
         if lang == "fa": prompt += " Answer in Persian."
         elif lang == "ar": prompt += " Answer in Arabic."
         elif lang == "ru": prompt += " Answer in Russian."
         
-        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
         body = {"contents": [{"parts": [{"text": f"{prompt}\nUser Question: {caption}"}, {"inline_data": {"mime_type": "image/jpeg", "data": b64_img}}]}]}
-        
-        async with httpx.AsyncClient(timeout=60) as client:
-            r = await client.post(url, headers={"Content-Type": "application/json", "x-goog-api-key": GOOGLE_API_KEY}, json=body)
-            r.raise_for_status()
-            return r.json()["candidates"][0]["content"]["parts"][0]["text"]
-    except Exception as e: 
-        print(f"AI Image Error: {e}")
-        return TRANS[lang]["ai_error"]
+        return await call_gemini_api(body)
+    except Exception as e: return f"Image Error: {e}"
 
 async def ask_gemini_text(question, lang):
-    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
-    prompt = f"You are a professional dental clinic receptionist in Dubai. Answer the user question in {lang}. Keep it concise and polite."
-    body = {"contents": [{"parts": [{"text": f"{prompt}\nUser: {question}"}]}]}
-    headers = {"Content-Type": "application/json", "x-goog-api-key": GOOGLE_API_KEY}
-    try:
-        async with httpx.AsyncClient(timeout=30) as client:
-            r = await client.post(url, headers=headers, json=body)
-            r.raise_for_status()
-            return r.json()["candidates"][0]["content"]["parts"][0]["text"]
-    except Exception as e:
-        print(f"AI Text Error: {e}") 
-        return TRANS[lang]["ai_error"]
+    prompt = f"You are a dental clinic receptionist. Answer in {lang}. Keep it short.\nUser: {question}"
+    body = {"contents": [{"parts": [{"text": prompt}]}]}
+    return await call_gemini_api(body)
 
 # --- KEYBOARDS ---
 def language_keyboard():
@@ -311,7 +311,7 @@ def get_all_menu_buttons():
 def startup_event(): init_db()
 
 @app.get("/")
-async def root(): return {"status": "ok", "message": "Dental Bot V10 (Conflict Free)"}
+async def root(): return {"status": "ok", "message": "Dental Bot V11 (Debug Mode)"}
 
 @app.get("/trigger-reminders")
 async def trigger_reminders():
@@ -357,12 +357,10 @@ async def webhook(request: Request):
     texts = TRANS.get(lang, TRANS["en"])
 
     # --- GLOBAL INTERCEPTOR (Conflict Fix) ---
-    # اگر متن کاربر یکی از دکمه‌های منو باشد، وضعیت قبلی (مثل وسط رزرو) پاک می‌شود
     all_menu_btns = get_all_menu_buttons()
     if text in all_menu_btns:
         with sqlite3.connect(DB_NAME) as conn: conn.execute("DELETE FROM states WHERE chat_id=?", (chat_id,)); conn.commit()
         current_state = None
-        # ادامه به بخش Menu Handler...
 
     # --- IMAGE (TELEDENTISTRY) ---
     if msg.get("photo"):
@@ -379,7 +377,9 @@ async def webhook(request: Request):
         if f_info:
             res = await analyze_image_with_gemini(f_info["file_path"], msg.get("caption", ""), lang)
             prefix = texts["greeting"].format(name=user_name)
-            await send_message(chat_id, f"{prefix}\n🦷 **AI Analysis:**\n{res}{texts['photo_disclaimer']}", reply_markup=main_keyboard(lang))
+            await send_message(chat_id, f"{prefix}\n🦷 **AI:**\n{res}{texts['photo_disclaimer']}", reply_markup=main_keyboard(lang))
+        else:
+            await send_message(chat_id, "❌ Failed to get file from Telegram.")
         return {"ok": True}
 
     # --- CONTACT VERIFICATION ---
@@ -432,12 +432,12 @@ async def webhook(request: Request):
                 conn.execute("UPDATE states SET step=?, data=? WHERE chat_id=?", ("name", json.dumps({"lang": sel_lang}), chat_id))
                 conn.commit()
             
-            # KEYBOARD REMOVED TO PREVENT NAME BUG
+            # REMOVE KEYBOARD to prevent double clicks
             await send_message(chat_id, TRANS[sel_lang]["name_prompt"], reply_markup={"remove_keyboard": True})
             return {"ok": True}
 
         if step == "name":
-            # NAME FILTER: Prevent language buttons as name
+            # Safe guard against button clicks
             if text.strip() in ["English", "فارسی / Farsi", "العربية / Arabic", "Русский / Russian"]:
                  await send_message(chat_id, TRANS[data["lang"]]["name_error"])
                  return {"ok": True}
@@ -491,7 +491,6 @@ async def webhook(request: Request):
         if step == "slot":
             clicked_slot = text
             full_slot = None
-            # DB Search for Slot
             with sqlite3.connect(DB_NAME) as conn:
                 found = conn.execute("SELECT datetime_str FROM slots WHERE datetime_str LIKE ? AND is_booked=0", (f"%{clicked_slot}",)).fetchone()
                 if found: full_slot = found[0]
@@ -500,14 +499,14 @@ async def webhook(request: Request):
                 with sqlite3.connect(DB_NAME) as conn: conn.execute("DELETE FROM states WHERE chat_id=?", (chat_id,)); conn.commit()
                 await send_message(chat_id, texts["booking_done"], reply_markup=main_keyboard(lang))
                 if ADMIN_CHAT_ID:
-                    try: await send_message(int(ADMIN_CHAT_ID), f"📅 New Booking ({lang}):\nUser: {user_name}\nWA: {user_row[1]}\nTime: {full_slot}")
+                    try: await send_message(int(ADMIN_CHAT_ID), f"📅 Booking:\nName: {user_name}\nWA: {user_row[1]}\nTime: {full_slot}")
                     except: pass
             else:
                 new_slots = get_available_slots()
                 await send_message(chat_id, texts["slot_taken"], reply_markup=slots_keyboard(new_slots))
             return {"ok": True}
 
-    # --- MAIN MENU HANDLER ---
+    # --- MAIN MENU ---
     flat_btns = [b for r in texts["buttons"] for b in r]
     if text in flat_btns:
         idx = flat_btns.index(text)
@@ -521,11 +520,11 @@ async def webhook(request: Request):
              await send_message(chat_id, f"{prefix}{texts['booking_prompt']}")
         elif idx == 3: # Address
              await send_message(chat_id, f"{prefix}\n{texts['address_reply']}", reply_markup=main_keyboard(lang))
-        elif idx == 4: # Ask (Question or Photo)
+        elif idx == 4: # Ask
              await send_message(chat_id, texts["ask_prompt"], reply_markup=main_keyboard(lang))
         return {"ok": True}
 
-    # --- AI CHAT (TEXT FALLBACK) ---
+    # --- AI CHAT ---
     if user_row:
         gemini_ans = await ask_gemini_text(text, lang)
         prefix = texts["greeting"].format(name=user_name)
