@@ -28,92 +28,100 @@ if not TELEGRAM_TOKEN or not GOOGLE_API_KEY:
     raise RuntimeError("Missing TELEGRAM_BOT_TOKEN or GOOGLE_API_KEY")
 
 # -----------------------------------------
-# TRANSLATIONS (FA, EN, AR, RU)
+# TEXTS & TRANSLATIONS
 # -----------------------------------------
 TRANS = {
     "fa": {
         "buttons": [["خدمات", "ساعات کاری"], ["رزرو نوبت", "آدرس مرکز"], ["سوال از منشی"]],
         "share_contact": "📱 ارسال شماره تماس (تأیید هویت)",
-        "reg_contact_prompt": "لطفاً برای تکمیل ثبت‌نام، روی دکمه زیر بزنید تا شماره شما تأیید شود:",
+        "name_prompt": "لطفاً نام و نام خانوادگی خود را وارد کنید:",
+        "whatsapp_prompt": "لطفاً شماره واتساپ خود را بنویسید (مثال: 0912...):",
+        "phone_prompt": "اکنون برای تکمیل نهایی، روی دکمه زیر بزنید تا شماره تلگرام شما تأیید شود:",
         "use_button_error": "⛔️ لطفاً تایپ نکنید. از دکمه «ارسال شماره تماس» استفاده کنید.",
+        "reg_complete": "ثبت‌نام کامل شد. خوش آمدید 🌹",
+        "greeting": "{name} عزیز، ",
+        "services_reply": "خدمات ما:\n• ایمپلنت\n• ارتودنسی\n• لمینت\n• جرمگیری\n• عصب‌کشی",
+        "hours_reply": "ساعات کاری:\nهمه روزه ۱۰ صبح تا ۹ شب",
+        "address_reply": "آدرس:\nدبی، خیابان الوصل، الصفا ۱",
         "booking_prompt": "چه خدمتی نیاز دارید؟",
         "doctor_prompt": "نام دکتر (یا بنویسید 'فرقی نمی‌کند'):",
         "time_prompt": "لطفاً یکی از زمان‌های خالی زیر را انتخاب کنید (زمان به وقت دبی):",
-        "photo_analyzing": "🖼 در حال بررسی تصویر دندان شما توسط هوش مصنوعی... لطفاً صبر کنید.",
-        "photo_disclaimer": "\n\n⚠️ توجه: این فقط یک تحلیل اولیه هوشمند است و جایگزین تشخیص پزشک نیست.",
-        "reminder_msg": "{name} عزیز، یادآوری: شما فردا ({date}) ساعت {time} نوبت دندانپزشکی دارید.",
-        "file_too_large": "⚠️ حجم فایل زیاد است. لطفاً عکس کم‌حجم‌تر بفرستید.",
-        "slot_taken": "متأسفانه این زمان پر شد. لطفاً زمان دیگری انتخاب کنید.",
-        "no_slots": "وقت خالی برای ۷ روز آینده موجود نیست.",
         "booking_done": "✅ نوبت شما رزرو شد.",
-        "reg_complete": "ثبت‌نام انجام شد. خوش آمدید 🌹",
-        "cancelled": "لغو شد.",
-        "services_reply": "خدمات ما:\n• ایمپلنت\n• ارتودنسی\n• لمینت\n• جرمگیری\n• عصب‌کشی",
-        "hours_reply": "ساعات کاری:\nهمه روزه ۱۰ صبح تا ۹ شب",
-        "address_reply": "آدرس:\nدبی، خیابان الوصل، الصفا ۱"
+        "photo_analyzing": "🖼 در حال بررسی تصویر...",
+        "photo_disclaimer": "\n\n⚠️ توجه: این فقط یک تحلیل هوشمند است و جایگزین پزشک نیست.",
+        "file_too_large": "⚠️ حجم فایل زیاد است.",
+        "slot_taken": "متأسفانه این زمان پر شد.",
+        "no_slots": "وقت خالی موجود نیست.",
+        "cancelled": "لغو شد."
     },
     "en": {
         "buttons": [["Services", "Working Hours"], ["Book Appointment", "Location"], ["Ask Receptionist"]],
         "share_contact": "📱 Share Contact",
-        "reg_contact_prompt": "Please tap the button below to share your verified phone number:",
-        "use_button_error": "⛔️ Please do not type. Use the 'Share Contact' button.",
+        "name_prompt": "Please enter your full name:",
+        "whatsapp_prompt": "Please enter your WhatsApp number:",
+        "phone_prompt": "Now please tap the button below to verify your Telegram phone number:",
+        "use_button_error": "⛔️ Please use the 'Share Contact' button.",
+        "reg_complete": "Registration complete. Welcome!",
+        "greeting": "Dear {name}, ",
+        "services_reply": "Our Services:\n• Implants\n• Orthodontics\n• Veneers\n• Scaling",
+        "hours_reply": "Working Hours:\nDaily 10:00 AM - 09:00 PM",
+        "address_reply": "Address:\nDubai, Al Wasl Rd, Al Safa 1",
         "booking_prompt": "Which service?",
         "doctor_prompt": "Doctor name (or 'Any'):",
         "time_prompt": "Please select a slot (Dubai Time):",
-        "photo_analyzing": "🖼 Analyzing your dental image...",
-        "photo_disclaimer": "\n\n⚠️ Note: AI analysis is not a medical diagnosis.",
-        "reminder_msg": "Dear {name}, Reminder: You have an appointment tomorrow ({date}) at {time}.",
-        "file_too_large": "⚠️ File too large.",
-        "slot_taken": "Slot taken. Choose another.",
-        "no_slots": "No slots available for next 7 days.",
         "booking_done": "✅ Appointment confirmed.",
-        "reg_complete": "Registration complete. Welcome!",
-        "cancelled": "Cancelled.",
-        "services_reply": "Our Services:\n• Implants\n• Orthodontics\n• Veneers\n• Scaling\n• Root Canal",
-        "hours_reply": "Working Hours:\nDaily 10:00 AM - 09:00 PM",
-        "address_reply": "Address:\nDubai, Al Wasl Rd, Al Safa 1"
+        "photo_analyzing": "🖼 Analyzing image...",
+        "photo_disclaimer": "\n\n⚠️ Note: Not a medical diagnosis.",
+        "file_too_large": "⚠️ File too large.",
+        "slot_taken": "Slot taken.",
+        "no_slots": "No slots available.",
+        "cancelled": "Cancelled."
     },
     "ar": {
         "buttons": [["الخدمات", "ساعات العمل"], ["حجز موعد", "العنوان"], ["سؤال الاستقبال"]],
         "share_contact": "📱 مشاركة رقم الهاتف",
-        "reg_contact_prompt": "الرجاء الضغط على الزر أدناه لمشاركة رقم هاتفك المؤكد:",
-        "use_button_error": "⛔️ الرجاء عدم الكتابة. استخدم زر 'مشاركة رقم الهاتف'.",
-        "booking_prompt": "ما هي الخدمة المطلوبة؟",
-        "doctor_prompt": "اسم الطبيب (أو اكتب 'أي طبيب'):",
-        "time_prompt": "الرجاء اختيار وقت من الأوقات المتاحة (توقيت دبي):",
-        "photo_analyzing": "🖼 جاري تحليل صورة الأسنان بالذكاء الاصطناعي...",
-        "photo_disclaimer": "\n\n⚠️ ملاحظة: هذا تحليل أولي فقط ولا يغني عن تشخيص الطبيب.",
-        "reminder_msg": "عزيزي {name}، تذكير: لديك موعد غداً ({date}) الساعة {time}.",
-        "file_too_large": "⚠️ الملف كبير جداً.",
-        "slot_taken": "عذراً، هذا الموعد محجوز. اختر وقتاً آخر.",
-        "no_slots": "لا توجد مواعيد متاحة للأيام السبعة القادمة.",
-        "booking_done": "✅ تم تأكيد الحجز.",
+        "name_prompt": "الرجاء إدخال اسمك الكامل:",
+        "whatsapp_prompt": "الرجاء إدخال رقم الواتساب:",
+        "phone_prompt": "الآن اضغط على الزر أدناه لتأكيد رقم هاتفك:",
+        "use_button_error": "⛔️ الرجاء استخدام زر المشاركة.",
         "reg_complete": "تم التسجيل بنجاح. أهلاً بك!",
-        "cancelled": "تم الإلغاء.",
-        "services_reply": "خدماتنا:\n• زراعة الأسنان\n• تقويم الأسنان\n• القشور الخزفية\n• تنظيف الأسنان",
+        "greeting": "عزيزي {name}، ",
+        "services_reply": "خدماتنا:\n• زراعة الأسنان\n• تقويم الأسنان\n• القشور الخزفية",
         "hours_reply": "ساعات العمل:\nيومياً من ١٠ صباحاً حتى ٩ مساءً",
-        "address_reply": "العنوان:\nدبي، شارع الوصل، الصفا ١"
+        "address_reply": "العنوان:\nدبي، شارع الوصل، الصفا ١",
+        "booking_prompt": "ما هي الخدمة المطلوبة؟",
+        "doctor_prompt": "اسم الطبيب (أو 'أي طبيب'):",
+        "time_prompt": "اختر وقتاً (توقيت دبي):",
+        "booking_done": "✅ تم الحجز.",
+        "photo_analyzing": "🖼 جاري التحليل...",
+        "photo_disclaimer": "\n\n⚠️ ملاحظة: هذا ليس تشخيصاً طبياً.",
+        "file_too_large": "⚠️ الملف كبير جداً.",
+        "slot_taken": "الموعد محجوز.",
+        "no_slots": "لا توجد مواعيد.",
+        "cancelled": "تم الإلغاء."
     },
     "ru": {
         "buttons": [["Услуги", "Часы работы"], ["Записаться", "Адрес"], ["Вопрос ресепшн"]],
         "share_contact": "📱 Отправить контакт",
-        "reg_contact_prompt": "Пожалуйста, нажмите кнопку ниже, чтобы отправить ваш номер:",
-        "use_button_error": "⛔️ Пожалуйста, используйте кнопку «Отправить контакт».",
-        "booking_prompt": "Какая услуга вам нужна?",
-        "doctor_prompt": "Имя врача (или 'Любой'):",
-        "time_prompt": "Выберите свободное время (время Дубая):",
-        "photo_analyzing": "🖼 ИИ анализирует снимок...",
-        "photo_disclaimer": "\n\n⚠️ Примечание: Это не медицинский диагноз.",
-        "reminder_msg": "Уважаемый(ая) {name}, напоминание: у вас прием завтра ({date}) в {time}.",
-        "file_too_large": "⚠️ Файл слишком большой.",
-        "slot_taken": "Время занято. Выберите другое.",
-        "no_slots": "Нет свободного времени на 7 дней.",
-        "booking_done": "✅ Запись подтверждена.",
+        "name_prompt": "Введите ваше полное имя:",
+        "whatsapp_prompt": "Введите номер WhatsApp:",
+        "phone_prompt": "Нажмите кнопку ниже, чтобы подтвердить номер:",
+        "use_button_error": "⛔️ Используйте кнопку отправки контакта.",
         "reg_complete": "Регистрация завершена. Добро пожаловать!",
-        "cancelled": "Отменено.",
-        "services_reply": "Услуги:\n• Имплантация\n• Ортодонтия\n• Виниры\n• Чистка",
-        "hours_reply": "Часы работы:\nЕжедневно с 10:00 до 21:00",
-        "address_reply": "Адрес:\nДубай, Аль Васл Роуд, Аль Сафа 1"
+        "greeting": "Уважаемый(ая) {name}, ",
+        "services_reply": "Услуги:\n• Имплантация\n• Ортодонтия\n• Виниры",
+        "hours_reply": "Часы работы:\nЕжедневно 10:00 - 21:00",
+        "address_reply": "Адрес:\nДубай, Аль Васл Роуд",
+        "booking_prompt": "Какая услуга?",
+        "doctor_prompt": "Врач (или 'Любой'):",
+        "time_prompt": "Выберите время:",
+        "booking_done": "✅ Запись подтверждена.",
+        "photo_analyzing": "🖼 Анализ...",
+        "photo_disclaimer": "\n\n⚠️ Это не диагноз.",
+        "file_too_large": "⚠️ Файл большой.",
+        "slot_taken": "Занято.",
+        "no_slots": "Нет мест.",
+        "cancelled": "Отменено."
     }
 }
 
@@ -123,7 +131,11 @@ TRANS = {
 def init_db():
     with sqlite3.connect(DB_NAME) as conn:
         conn.execute("PRAGMA journal_mode=WAL;")
-        conn.execute("CREATE TABLE IF NOT EXISTS users (chat_id INTEGER PRIMARY KEY, name TEXT, phone TEXT, lang TEXT DEFAULT 'fa')")
+        # جدول کاربران: اضافه شدن ستون whatsapp
+        conn.execute("CREATE TABLE IF NOT EXISTS users (chat_id INTEGER PRIMARY KEY, name TEXT, whatsapp TEXT, phone TEXT, lang TEXT DEFAULT 'fa')")
+        try: conn.execute("ALTER TABLE users ADD COLUMN whatsapp TEXT") 
+        except: pass # اگر ستون قبلاً بود خطا ندهد
+
         conn.execute("CREATE TABLE IF NOT EXISTS states (chat_id INTEGER PRIMARY KEY, flow_type TEXT, step TEXT, data TEXT)")
         conn.execute("""
             CREATE TABLE IF NOT EXISTS slots (
@@ -141,37 +153,38 @@ def get_dubai_now():
     return datetime.now(DUBAI_TZ)
 
 def ensure_future_slots():
-    """تولید اسلات برای ۷ روز آینده"""
     with sqlite3.connect(DB_NAME) as conn:
         now = get_dubai_now()
         for day in range(1, 8):
             date = now + timedelta(days=day)
-            for hour in [10, 12, 14, 16, 18, 20]: # نوبت‌های دو ساعته
+            for hour in [10, 12, 14, 16, 18, 20]:
                 dt_str = f"{date.strftime('%Y-%m-%d')} {hour:02d}:00"
                 try: conn.execute("INSERT INTO slots (datetime_str) VALUES (?)", (dt_str,))
                 except: pass
-        
-        # پاکسازی قدیمی‌ها
         yesterday = (now - timedelta(days=1)).strftime('%Y-%m-%d')
         conn.execute("DELETE FROM slots WHERE datetime_str < ?", (yesterday,))
         conn.commit()
 
-def upsert_user(chat_id, name=None, phone=None, lang=None):
+# تابع ذخیره/آپدیت کاربر
+def upsert_user(chat_id, name=None, whatsapp=None, phone=None, lang=None):
     with sqlite3.connect(DB_NAME) as conn:
         cursor = conn.execute("SELECT * FROM users WHERE chat_id=?", (chat_id,))
         if cursor.fetchone():
             q, p = "UPDATE users SET ", []
             if name: q+="name=?, "; p.append(name)
+            if whatsapp: q+="whatsapp=?, "; p.append(whatsapp)
             if phone: q+="phone=?, "; p.append(phone)
             if lang: q+="lang=?, "; p.append(lang)
             if p: conn.execute(q.rstrip(", ")+" WHERE chat_id=?", (*p, chat_id))
         else:
-            conn.execute("INSERT INTO users (chat_id, name, phone, lang) VALUES (?,?,?,?)", (chat_id, name, phone, lang or 'fa'))
+            conn.execute("INSERT INTO users (chat_id, name, whatsapp, phone, lang) VALUES (?,?,?,?,?)", 
+                         (chat_id, name, whatsapp, phone, lang or 'fa'))
         conn.commit()
 
 def get_user(chat_id):
     with sqlite3.connect(DB_NAME) as conn:
-        return conn.execute("SELECT name, phone, lang FROM users WHERE chat_id=?", (chat_id,)).fetchone()
+        # ترتیب: name, whatsapp, phone, lang
+        return conn.execute("SELECT name, whatsapp, phone, lang FROM users WHERE chat_id=?", (chat_id,)).fetchone()
 
 def get_all_users():
     with sqlite3.connect(DB_NAME) as conn:
@@ -224,8 +237,6 @@ async def analyze_image_with_gemini(file_path, caption, lang):
         async with httpx.AsyncClient(timeout=45) as client:
             img_data = (await client.get(file_url)).content
         b64_img = base64.b64encode(img_data).decode("utf-8")
-        
-        # پرامپت چندزبانه برای تحلیل عکس
         prompt = "Analyze this dental image. Identify issues. Be professional. NOT a medical diagnosis."
         if lang == "fa": prompt += " Answer in Persian."
         elif lang == "ar": prompt += " Answer in Arabic."
@@ -233,7 +244,6 @@ async def analyze_image_with_gemini(file_path, caption, lang):
         
         url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
         body = {"contents": [{"parts": [{"text": f"{prompt}\nUser Question: {caption}"}, {"inline_data": {"mime_type": "image/jpeg", "data": b64_img}}]}]}
-        
         async with httpx.AsyncClient(timeout=45) as client:
             r = await client.post(url, headers={"Content-Type": "application/json", "x-goog-api-key": GOOGLE_API_KEY}, json=body)
             return r.json()["candidates"][0]["content"]["parts"][0]["text"]
@@ -250,6 +260,7 @@ async def ask_gemini_text(question, lang):
             return r.json()["candidates"][0]["content"]["parts"][0]["text"]
     except: return "System busy."
 
+# --- KEYBOARDS ---
 def language_keyboard():
     return {"keyboard": [
         [{"text": "فارسی / Farsi"}, {"text": "English"}],
@@ -268,7 +279,7 @@ def slots_keyboard(slots):
     kb = []
     row = []
     for s in slots:
-        display = s[5:] # حذف سال
+        display = s[5:] 
         row.append({"text": display})
         if len(row) == 2: kb.append(row); row=[]
     if row: kb.append(row)
@@ -282,7 +293,7 @@ def slots_keyboard(slots):
 def startup_event(): init_db()
 
 @app.get("/")
-async def root(): return {"status": "ok", "message": "Dental Bot V6 (Full Multi-Lang)"}
+async def root(): return {"status": "ok", "message": "Dental Bot V7 (Personalized)"}
 
 @app.get("/trigger-reminders")
 async def trigger_reminders():
@@ -292,8 +303,9 @@ async def trigger_reminders():
         texts = TRANS.get(lang, TRANS["en"])
         date_part = dt_str.split(" ")[0]
         time_part = dt_str.split(" ")[1]
-        msg = texts["reminder_msg"].format(name=name, date=date_part, time=time_part)
-        await send_message(chat_id, "⏰ " + msg)
+        # پیام یادآوری با نام کاربر
+        msg = f"⏰ {texts['reminder_msg'].format(name=name, date=date_part, time=time_part)}"
+        await send_message(chat_id, msg)
         mark_reminder_as_sent(slot_id)
         count += 1
     return {"status": "success", "sent": count}
@@ -309,7 +321,7 @@ async def webhook(request: Request):
     
     if not chat_id: return {"ok": True}
 
-    # Admin Broadcast
+    # --- ADMIN BROADCAST ---
     if str(chat_id) == str(ADMIN_CHAT_ID) and text.startswith("/broadcast"):
         body = text.replace("/broadcast", "").strip()
         if body:
@@ -324,11 +336,12 @@ async def webhook(request: Request):
         current_state = {"flow_type": state_row[0], "step": state_row[1], "data": json.loads(state_row[2])} if state_row else None
     
     user_row = get_user(chat_id)
-    # اگر زبان کاربر ست نشده بود، پیش‌فرض انگلیسی (امن‌تر)
-    lang = user_row[2] if user_row else "en"
+    # user_row[0]=name, [1]=whatsapp, [2]=phone, [3]=lang
+    user_name = user_row[0] if user_row else None
+    lang = user_row[3] if user_row else "en"
     texts = TRANS.get(lang, TRANS["en"])
 
-    # --- IMAGE (TELEDENTISTRY) ---
+    # --- IMAGE HANDLING ---
     if msg.get("photo"):
         if not user_row:
             await send_message(chat_id, "Please register first / لطفاً ثبت‌نام کنید")
@@ -342,10 +355,12 @@ async def webhook(request: Request):
         f_info = await get_file_info(msg["photo"][-1]["file_id"])
         if f_info:
             res = await analyze_image_with_gemini(f_info["file_path"], msg.get("caption", ""), lang)
-            await send_message(chat_id, "🦷 **AI:**\n" + res + texts["photo_disclaimer"], reply_markup=main_keyboard(lang))
+            # پاسخ هوش مصنوعی با نام کاربر
+            prefix = texts["greeting"].format(name=user_name)
+            await send_message(chat_id, f"{prefix}\n\n🦷 **AI:**\n{res}{texts['photo_disclaimer']}", reply_markup=main_keyboard(lang))
         return {"ok": True}
 
-    # --- CONTACT VERIFICATION ---
+    # --- CONTACT VERIFICATION (PHONE STEP) ---
     if current_state and current_state["step"] == "phone":
         if msg.get("contact"):
             contact = msg["contact"]
@@ -354,12 +369,15 @@ async def webhook(request: Request):
                 return {"ok": True}
             
             data = current_state["data"]
-            upsert_user(chat_id, name=data["name"], phone=contact.get("phone_number"), lang=data["lang"])
+            # ذخیره نهایی: نام، واتساپ، تلفن تایید شده، زبان
+            upsert_user(chat_id, name=data.get("name"), whatsapp=data.get("whatsapp"), phone=contact.get("phone_number"), lang=data.get("lang"))
+            
             with sqlite3.connect(DB_NAME) as conn: conn.execute("DELETE FROM states WHERE chat_id=?", (chat_id,)); conn.commit()
             
             welcome_msg = TRANS.get(data["lang"], TRANS["en"])["reg_complete"]
             await send_message(chat_id, welcome_msg, reply_markup=main_keyboard(data["lang"]))
         else:
+            # اگر کاربر تایپ کرد (با اینکه باید دکمه می‌زد)
             err = TRANS.get(current_state["data"]["lang"], TRANS["en"])["use_button_error"]
             await send_message(chat_id, err, reply_markup=contact_keyboard(current_state["data"]["lang"]))
         return {"ok": True}
@@ -373,11 +391,12 @@ async def webhook(request: Request):
         await send_message(chat_id, "Select Language / زبان را انتخاب کنید:", reply_markup=language_keyboard())
         return {"ok": True}
 
-    # --- REGISTRATION ---
+    # --- REGISTRATION FLOW ---
     if current_state and current_state["flow_type"] == "reg":
         step = current_state["step"]
         data = current_state["data"]
 
+        # 1. Language
         if step == "lang":
             sel_lang = None
             t_lower = text.lower()
@@ -392,27 +411,42 @@ async def webhook(request: Request):
                 
             upsert_user(chat_id, lang=sel_lang)
             with sqlite3.connect(DB_NAME) as conn:
+                # برو به مرحله نام
                 conn.execute("UPDATE states SET step=?, data=? WHERE chat_id=?", ("name", json.dumps({"lang": sel_lang}), chat_id))
                 conn.commit()
             
-            name_msgs = {"fa": "نام خود را وارد کنید:", "en": "Enter your name:", "ar": "اكتب اسمك:", "ru": "Введите имя:"}
-            await send_message(chat_id, name_msgs[sel_lang])
+            await send_message(chat_id, TRANS[sel_lang]["name_prompt"])
             return {"ok": True}
 
+        # 2. Name
         if step == "name":
             data["name"] = text
             with sqlite3.connect(DB_NAME) as conn:
+                # برو به مرحله واتساپ
+                conn.execute("UPDATE states SET step=?, data=? WHERE chat_id=?", ("whatsapp", json.dumps(data), chat_id))
+                conn.commit()
+            
+            await send_message(chat_id, TRANS[data["lang"]]["whatsapp_prompt"])
+            return {"ok": True}
+
+        # 3. WhatsApp
+        if step == "whatsapp":
+            data["whatsapp"] = text
+            with sqlite3.connect(DB_NAME) as conn:
+                # برو به مرحله تلفن (تاییدیه)
                 conn.execute("UPDATE states SET step=?, data=? WHERE chat_id=?", ("phone", json.dumps(data), chat_id))
                 conn.commit()
-            p_msg = TRANS.get(data["lang"], TRANS["en"])["reg_contact_prompt"]
+            
+            p_msg = TRANS[data["lang"]]["phone_prompt"]
             await send_message(chat_id, p_msg, reply_markup=contact_keyboard(data["lang"]))
             return {"ok": True}
 
+    # اگر ثبت نام نکرده باشد
     if not user_row:
-        await send_message(chat_id, "Type /start")
+        await send_message(chat_id, "Type /start to register.")
         return {"ok": True}
 
-    # --- BOOKING ---
+    # --- BOOKING FLOW ---
     if current_state and current_state["flow_type"] == "booking":
         step = current_state["step"]
         data = current_state["data"]
@@ -450,34 +484,37 @@ async def webhook(request: Request):
                 with sqlite3.connect(DB_NAME) as conn: conn.execute("DELETE FROM states WHERE chat_id=?", (chat_id,)); conn.commit()
                 await send_message(chat_id, texts["booking_done"], reply_markup=main_keyboard(lang))
                 if ADMIN_CHAT_ID:
-                    try: await send_message(int(ADMIN_CHAT_ID), f"📅 New Booking ({lang}):\nUser: {user_row[0]}\nTime: {full_slot}\nSvc: {data.get('service')}")
+                    try: await send_message(int(ADMIN_CHAT_ID), f"📅 New Booking:\nName: {user_name}\nWhatsApp: {user_row[1]}\nPhone: {user_row[2]}\nTime: {full_slot}\nSvc: {data.get('service')}")
                     except: pass
             else:
                 new_slots = get_available_slots()
                 await send_message(chat_id, texts["slot_taken"], reply_markup=slots_keyboard(new_slots))
             return {"ok": True}
 
-    # --- MAIN MENU ---
+    # --- MAIN MENU HANDLER ---
     flat_btns = [b for r in texts["buttons"] for b in r]
     if text in flat_btns:
         idx = flat_btns.index(text)
+        prefix = texts["greeting"].format(name=user_name) # شخصی سازی پاسخ
+
         if idx == 0: # Services
-            await send_message(chat_id, texts["services_reply"], reply_markup=main_keyboard(lang))
+            await send_message(chat_id, f"{prefix}\n{texts['services_reply']}", reply_markup=main_keyboard(lang))
         elif idx == 1: # Hours
-            await send_message(chat_id, texts["hours_reply"], reply_markup=main_keyboard(lang))
+            await send_message(chat_id, f"{prefix}\n{texts['hours_reply']}", reply_markup=main_keyboard(lang))
         elif idx == 2: # Book
              with sqlite3.connect(DB_NAME) as conn: conn.execute("INSERT OR REPLACE INTO states (chat_id, flow_type, step, data) VALUES (?,?,?,?)", (chat_id, "booking", "service", "{}")); conn.commit()
-             await send_message(chat_id, texts["booking_prompt"])
+             await send_message(chat_id, f"{prefix}{texts['booking_prompt']}")
         elif idx == 3: # Address
-             await send_message(chat_id, texts["address_reply"], reply_markup=main_keyboard(lang))
+             await send_message(chat_id, f"{prefix}\n{texts['address_reply']}", reply_markup=main_keyboard(lang))
         elif idx == 4: # Ask
-             hint = {"fa": "سوال خود را تایپ کنید...", "en": "Type your question...", "ar": "اكتب سؤالك...", "ru": "Введите вопрос..."}
+             hint = {"fa": "سوال خود را بپرسید...", "en": "Ask your question...", "ar": "اكتب سؤالك...", "ru": "Введите вопрос..."}
              await send_message(chat_id, hint.get(lang, "Type..."))
         return {"ok": True}
 
     # --- AI CHAT (TEXT) ---
     if user_row:
         gemini_ans = await ask_gemini_text(text, lang)
-        await send_message(chat_id, gemini_ans, reply_markup=main_keyboard(lang))
+        prefix = texts["greeting"].format(name=user_name)
+        await send_message(chat_id, f"{prefix}{gemini_ans}", reply_markup=main_keyboard(lang))
 
     return {"ok": True}
