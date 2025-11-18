@@ -14,6 +14,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
+@app.get("/")
+async def root():
+    return {"status": "ok", "message": "Dental bot is running"}
 
 # -----------------------------------------
 # CONFIG & ENV
