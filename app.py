@@ -1,6 +1,10 @@
-import os
 from fastapi import FastAPI, Request
 import httpx
+import os
+
+from google import genai
+from google.genai import types
+from google.genai import client as genai_client
 
 app = FastAPI()
 
