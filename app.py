@@ -28,32 +28,35 @@ if not TELEGRAM_TOKEN or not GOOGLE_API_KEY:
     raise RuntimeError("Missing TELEGRAM_BOT_TOKEN or GOOGLE_API_KEY")
 
 # -----------------------------------------
-# TEXTS
+# TRANSLATIONS (FA, EN, AR, RU)
 # -----------------------------------------
 TRANS = {
     "fa": {
         "buttons": [["خدمات", "ساعات کاری"], ["رزرو نوبت", "آدرس مرکز"], ["سوال از منشی"]],
         "share_contact": "📱 ارسال شماره تماس (تأیید هویت)",
         "reg_contact_prompt": "لطفاً برای تکمیل ثبت‌نام، روی دکمه زیر بزنید تا شماره شما تأیید شود:",
-        "use_button_error": "⛔️ لطفاً شماره را تایپ نکنید. حتماً از دکمه «ارسال شماره تماس» در پایین صفحه استفاده کنید.",
+        "use_button_error": "⛔️ لطفاً تایپ نکنید. از دکمه «ارسال شماره تماس» استفاده کنید.",
         "booking_prompt": "چه خدمتی نیاز دارید؟",
         "doctor_prompt": "نام دکتر (یا بنویسید 'فرقی نمی‌کند'):",
         "time_prompt": "لطفاً یکی از زمان‌های خالی زیر را انتخاب کنید (زمان به وقت دبی):",
         "photo_analyzing": "🖼 در حال بررسی تصویر دندان شما توسط هوش مصنوعی... لطفاً صبر کنید.",
         "photo_disclaimer": "\n\n⚠️ توجه: این فقط یک تحلیل اولیه هوشمند است و جایگزین تشخیص پزشک نیست.",
         "reminder_msg": "{name} عزیز، یادآوری: شما فردا ({date}) ساعت {time} نوبت دندانپزشکی دارید.",
-        "file_too_large": "⚠️ حجم فایل ارسالی زیاد است. لطفاً عکس کم‌حجم‌تر بفرستید.",
+        "file_too_large": "⚠️ حجم فایل زیاد است. لطفاً عکس کم‌حجم‌تر بفرستید.",
         "slot_taken": "متأسفانه این زمان پر شد. لطفاً زمان دیگری انتخاب کنید.",
-        "no_slots": "در حال حاضر وقت خالی برای ۷ روز آینده موجود نیست. لطفاً تماس بگیرید.",
+        "no_slots": "وقت خالی برای ۷ روز آینده موجود نیست.",
         "booking_done": "✅ نوبت شما رزرو شد.",
         "reg_complete": "ثبت‌نام انجام شد. خوش آمدید 🌹",
-        "cancelled": "لغو شد."
+        "cancelled": "لغو شد.",
+        "services_reply": "خدمات ما:\n• ایمپلنت\n• ارتودنسی\n• لمینت\n• جرمگیری\n• عصب‌کشی",
+        "hours_reply": "ساعات کاری:\nهمه روزه ۱۰ صبح تا ۹ شب",
+        "address_reply": "آدرس:\nدبی، خیابان الوصل، الصفا ۱"
     },
     "en": {
         "buttons": [["Services", "Working Hours"], ["Book Appointment", "Location"], ["Ask Receptionist"]],
         "share_contact": "📱 Share Contact",
         "reg_contact_prompt": "Please tap the button below to share your verified phone number:",
-        "use_button_error": "⛔️ Please do not type. Use the 'Share Contact' button below.",
+        "use_button_error": "⛔️ Please do not type. Use the 'Share Contact' button.",
         "booking_prompt": "Which service?",
         "doctor_prompt": "Doctor name (or 'Any'):",
         "time_prompt": "Please select a slot (Dubai Time):",
@@ -62,10 +65,55 @@ TRANS = {
         "reminder_msg": "Dear {name}, Reminder: You have an appointment tomorrow ({date}) at {time}.",
         "file_too_large": "⚠️ File too large.",
         "slot_taken": "Slot taken. Choose another.",
-        "no_slots": "No slots available for the next 7 days.",
+        "no_slots": "No slots available for next 7 days.",
         "booking_done": "✅ Appointment confirmed.",
         "reg_complete": "Registration complete. Welcome!",
-        "cancelled": "Cancelled."
+        "cancelled": "Cancelled.",
+        "services_reply": "Our Services:\n• Implants\n• Orthodontics\n• Veneers\n• Scaling\n• Root Canal",
+        "hours_reply": "Working Hours:\nDaily 10:00 AM - 09:00 PM",
+        "address_reply": "Address:\nDubai, Al Wasl Rd, Al Safa 1"
+    },
+    "ar": {
+        "buttons": [["الخدمات", "ساعات العمل"], ["حجز موعد", "العنوان"], ["سؤال الاستقبال"]],
+        "share_contact": "📱 مشاركة رقم الهاتف",
+        "reg_contact_prompt": "الرجاء الضغط على الزر أدناه لمشاركة رقم هاتفك المؤكد:",
+        "use_button_error": "⛔️ الرجاء عدم الكتابة. استخدم زر 'مشاركة رقم الهاتف'.",
+        "booking_prompt": "ما هي الخدمة المطلوبة؟",
+        "doctor_prompt": "اسم الطبيب (أو اكتب 'أي طبيب'):",
+        "time_prompt": "الرجاء اختيار وقت من الأوقات المتاحة (توقيت دبي):",
+        "photo_analyzing": "🖼 جاري تحليل صورة الأسنان بالذكاء الاصطناعي...",
+        "photo_disclaimer": "\n\n⚠️ ملاحظة: هذا تحليل أولي فقط ولا يغني عن تشخيص الطبيب.",
+        "reminder_msg": "عزيزي {name}، تذكير: لديك موعد غداً ({date}) الساعة {time}.",
+        "file_too_large": "⚠️ الملف كبير جداً.",
+        "slot_taken": "عذراً، هذا الموعد محجوز. اختر وقتاً آخر.",
+        "no_slots": "لا توجد مواعيد متاحة للأيام السبعة القادمة.",
+        "booking_done": "✅ تم تأكيد الحجز.",
+        "reg_complete": "تم التسجيل بنجاح. أهلاً بك!",
+        "cancelled": "تم الإلغاء.",
+        "services_reply": "خدماتنا:\n• زراعة الأسنان\n• تقويم الأسنان\n• القشور الخزفية\n• تنظيف الأسنان",
+        "hours_reply": "ساعات العمل:\nيومياً من ١٠ صباحاً حتى ٩ مساءً",
+        "address_reply": "العنوان:\nدبي، شارع الوصل، الصفا ١"
+    },
+    "ru": {
+        "buttons": [["Услуги", "Часы работы"], ["Записаться", "Адрес"], ["Вопрос ресепшн"]],
+        "share_contact": "📱 Отправить контакт",
+        "reg_contact_prompt": "Пожалуйста, нажмите кнопку ниже, чтобы отправить ваш номер:",
+        "use_button_error": "⛔️ Пожалуйста, используйте кнопку «Отправить контакт».",
+        "booking_prompt": "Какая услуга вам нужна?",
+        "doctor_prompt": "Имя врача (или 'Любой'):",
+        "time_prompt": "Выберите свободное время (время Дубая):",
+        "photo_analyzing": "🖼 ИИ анализирует снимок...",
+        "photo_disclaimer": "\n\n⚠️ Примечание: Это не медицинский диагноз.",
+        "reminder_msg": "Уважаемый(ая) {name}, напоминание: у вас прием завтра ({date}) в {time}.",
+        "file_too_large": "⚠️ Файл слишком большой.",
+        "slot_taken": "Время занято. Выберите другое.",
+        "no_slots": "Нет свободного времени на 7 дней.",
+        "booking_done": "✅ Запись подтверждена.",
+        "reg_complete": "Регистрация завершена. Добро пожаловать!",
+        "cancelled": "Отменено.",
+        "services_reply": "Услуги:\n• Имплантация\n• Ортодонтия\n• Виниры\n• Чистка",
+        "hours_reply": "Часы работы:\nЕжедневно с 10:00 до 21:00",
+        "address_reply": "Адрес:\nДубай, Аль Васл Роуд, Аль Сафа 1"
     }
 }
 
@@ -74,9 +122,7 @@ TRANS = {
 # -----------------------------------------
 def init_db():
     with sqlite3.connect(DB_NAME) as conn:
-        # فعال‌سازی WAL برای مدیریت بهتر همزمانی
         conn.execute("PRAGMA journal_mode=WAL;")
-        
         conn.execute("CREATE TABLE IF NOT EXISTS users (chat_id INTEGER PRIMARY KEY, name TEXT, phone TEXT, lang TEXT DEFAULT 'fa')")
         conn.execute("CREATE TABLE IF NOT EXISTS states (chat_id INTEGER PRIMARY KEY, flow_type TEXT, step TEXT, data TEXT)")
         conn.execute("""
@@ -89,39 +135,27 @@ def init_db():
             )
         """)
         conn.commit()
-    
-    # بررسی و تولید اسلات‌ها در هر بار اجرا
     ensure_future_slots()
 
 def get_dubai_now():
     return datetime.now(DUBAI_TZ)
 
 def ensure_future_slots():
-    """تضمین می‌کند که همیشه برای ۷ روز آینده اسلات خالی وجود دارد"""
+    """تولید اسلات برای ۷ روز آینده"""
     with sqlite3.connect(DB_NAME) as conn:
         now = get_dubai_now()
-        count_added = 0
-        # برای ۷ روز آینده
         for day in range(1, 8):
             date = now + timedelta(days=day)
-            # ساعات کاری: ۱۰ تا ۲۰ (هر دو ساعت)
-            for hour in [10, 12, 14, 16, 18, 20]:
+            for hour in [10, 12, 14, 16, 18, 20]: # نوبت‌های دو ساعته
                 dt_str = f"{date.strftime('%Y-%m-%d')} {hour:02d}:00"
-                try:
-                    conn.execute("INSERT INTO slots (datetime_str) VALUES (?)", (dt_str,))
-                    count_added += 1
-                except sqlite3.IntegrityError:
-                    pass # اسلات قبلاً وجود دارد
-        if count_added > 0:
-            conn.commit()
-            print(f"Added {count_added} new slots.")
+                try: conn.execute("INSERT INTO slots (datetime_str) VALUES (?)", (dt_str,))
+                except: pass
         
-        # پاکسازی اسلات‌های قدیمی (دیروز و قبل‌تر)
+        # پاکسازی قدیمی‌ها
         yesterday = (now - timedelta(days=1)).strftime('%Y-%m-%d')
         conn.execute("DELETE FROM slots WHERE datetime_str < ?", (yesterday,))
         conn.commit()
 
-# --- DB HELPERS ---
 def upsert_user(chat_id, name=None, phone=None, lang=None):
     with sqlite3.connect(DB_NAME) as conn:
         cursor = conn.execute("SELECT * FROM users WHERE chat_id=?", (chat_id,))
@@ -144,10 +178,9 @@ def get_all_users():
         return [r[0] for r in conn.execute("SELECT chat_id FROM users").fetchall()]
 
 def get_available_slots():
-    ensure_future_slots() # اطمینان از وجود اسلات قبل از نمایش
+    ensure_future_slots()
     with sqlite3.connect(DB_NAME) as conn:
         now_str = get_dubai_now().strftime("%Y-%m-%d %H:%M")
-        # ۱۰ اسلات بعدی خالی را برگردان
         return [r[0] for r in conn.execute("SELECT datetime_str FROM slots WHERE is_booked=0 AND datetime_str > ? ORDER BY datetime_str ASC LIMIT 10", (now_str,)).fetchall()]
 
 def book_slot_atomic(dt_str, chat_id):
@@ -157,15 +190,11 @@ def book_slot_atomic(dt_str, chat_id):
         return cursor.rowcount > 0
 
 def get_pending_reminders():
-    # یادآوری برای نوبت‌های "فردا"
     tomorrow = (get_dubai_now() + timedelta(days=1)).strftime("%Y-%m-%d")
     with sqlite3.connect(DB_NAME) as conn:
-        q = """
-            SELECT slots.id, slots.datetime_str, users.chat_id, users.name, users.lang 
-            FROM slots 
-            JOIN users ON slots.booked_by = users.chat_id 
-            WHERE is_booked=1 AND reminder_sent=0 AND datetime_str LIKE ?
-        """
+        q = """SELECT slots.id, slots.datetime_str, users.chat_id, users.name, users.lang 
+               FROM slots JOIN users ON slots.booked_by = users.chat_id 
+               WHERE is_booked=1 AND reminder_sent=0 AND datetime_str LIKE ?"""
         return conn.execute(q, (f"{tomorrow}%",)).fetchall()
 
 def mark_reminder_as_sent(slot_id):
@@ -194,24 +223,38 @@ async def analyze_image_with_gemini(file_path, caption, lang):
     try:
         async with httpx.AsyncClient(timeout=45) as client:
             img_data = (await client.get(file_url)).content
-        
         b64_img = base64.b64encode(img_data).decode("utf-8")
-        prompt = "Analyze this dental image. Identify issues. Be professional. This is NOT a diagnosis."
+        
+        # پرامپت چندزبانه برای تحلیل عکس
+        prompt = "Analyze this dental image. Identify issues. Be professional. NOT a medical diagnosis."
         if lang == "fa": prompt += " Answer in Persian."
+        elif lang == "ar": prompt += " Answer in Arabic."
+        elif lang == "ru": prompt += " Answer in Russian."
         
         url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
-        body = {
-            "contents": [{
-                "parts": [
-                    {"text": f"{prompt}\nUser Question: {caption}"},
-                    {"inline_data": {"mime_type": "image/jpeg", "data": b64_img}}
-                ]
-            }]
-        }
+        body = {"contents": [{"parts": [{"text": f"{prompt}\nUser Question: {caption}"}, {"inline_data": {"mime_type": "image/jpeg", "data": b64_img}}]}]}
+        
         async with httpx.AsyncClient(timeout=45) as client:
             r = await client.post(url, headers={"Content-Type": "application/json", "x-goog-api-key": GOOGLE_API_KEY}, json=body)
             return r.json()["candidates"][0]["content"]["parts"][0]["text"]
     except: return "Error analyzing image."
+
+async def ask_gemini_text(question, lang):
+    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
+    prompt = f"You are a dental clinic receptionist. Answer in {lang}. Keep it short."
+    body = {"contents": [{"parts": [{"text": f"{prompt}\nUser: {question}"}]}]}
+    headers = {"Content-Type": "application/json", "x-goog-api-key": GOOGLE_API_KEY}
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            r = await client.post(url, headers=headers, json=body)
+            return r.json()["candidates"][0]["content"]["parts"][0]["text"]
+    except: return "System busy."
+
+def language_keyboard():
+    return {"keyboard": [
+        [{"text": "فارسی / Farsi"}, {"text": "English"}],
+        [{"text": "العربية / Arabic"}, {"text": "Русский / Russian"}]
+    ], "resize_keyboard": True, "one_time_keyboard": True}
 
 def contact_keyboard(lang):
     text = TRANS.get(lang, TRANS["en"])["share_contact"]
@@ -225,8 +268,7 @@ def slots_keyboard(slots):
     kb = []
     row = []
     for s in slots:
-        # نمایش: 2023-11-20 10:00 -> 11-20 10:00
-        display = s[5:]
+        display = s[5:] # حذف سال
         row.append({"text": display})
         if len(row) == 2: kb.append(row); row=[]
     if row: kb.append(row)
@@ -237,11 +279,10 @@ def slots_keyboard(slots):
 # ROUTES
 # -----------------------------------------
 @app.on_event("startup")
-def startup_event():
-    init_db() # اطمینان از ساخت دیتابیس و اسلات‌ها هنگام روشن شدن سرور
+def startup_event(): init_db()
 
 @app.get("/")
-async def root(): return {"status": "ok", "message": "Dental Bot V5 (Golden Release)"}
+async def root(): return {"status": "ok", "message": "Dental Bot V6 (Full Multi-Lang)"}
 
 @app.get("/trigger-reminders")
 async def trigger_reminders():
@@ -268,32 +309,32 @@ async def webhook(request: Request):
     
     if not chat_id: return {"ok": True}
 
-    # --- ADMIN BROADCAST ---
+    # Admin Broadcast
     if str(chat_id) == str(ADMIN_CHAT_ID) and text.startswith("/broadcast"):
         body = text.replace("/broadcast", "").strip()
         if body:
             users = get_all_users()
             for u in users: await send_message(u, "📢 " + body)
-            await send_message(chat_id, f"Done. Sent to {len(users)}.")
+            await send_message(chat_id, f"Sent to {len(users)} users.")
         return {"ok": True}
 
-    # Load User & State
+    # Load State
     with sqlite3.connect(DB_NAME) as conn:
         state_row = conn.execute("SELECT flow_type, step, data FROM states WHERE chat_id=?", (chat_id,)).fetchone()
         current_state = {"flow_type": state_row[0], "step": state_row[1], "data": json.loads(state_row[2])} if state_row else None
     
     user_row = get_user(chat_id)
+    # اگر زبان کاربر ست نشده بود، پیش‌فرض انگلیسی (امن‌تر)
     lang = user_row[2] if user_row else "en"
     texts = TRANS.get(lang, TRANS["en"])
 
-    # --- IMAGE HANDLING ---
+    # --- IMAGE (TELEDENTISTRY) ---
     if msg.get("photo"):
         if not user_row:
-            await send_message(chat_id, "Please register first.")
+            await send_message(chat_id, "Please register first / لطفاً ثبت‌نام کنید")
             return {"ok": True}
         
-        f_size = msg["photo"][-1].get("file_size", 0)
-        if f_size > 19 * 1024 * 1024:
+        if msg["photo"][-1].get("file_size", 0) > 19 * 1024 * 1024:
             await send_message(chat_id, texts["file_too_large"])
             return {"ok": True}
             
@@ -319,7 +360,6 @@ async def webhook(request: Request):
             welcome_msg = TRANS.get(data["lang"], TRANS["en"])["reg_complete"]
             await send_message(chat_id, welcome_msg, reply_markup=main_keyboard(data["lang"]))
         else:
-            # کاربر متن فرستاده در حالی که باید دکمه را می‌زد
             err = TRANS.get(current_state["data"]["lang"], TRANS["en"])["use_button_error"]
             await send_message(chat_id, err, reply_markup=contact_keyboard(current_state["data"]["lang"]))
         return {"ok": True}
@@ -330,8 +370,7 @@ async def webhook(request: Request):
             conn.execute("DELETE FROM states WHERE chat_id=?", (chat_id,))
             conn.execute("INSERT INTO states (chat_id, flow_type, step, data) VALUES (?,?,?,?)", (chat_id, "reg", "lang", "{}"))
             conn.commit()
-        kb = {"keyboard": [[{"text": "فارسی"}, {"text": "English"}]], "resize_keyboard": True}
-        await send_message(chat_id, "Language / زبان:", reply_markup=kb)
+        await send_message(chat_id, "Select Language / زبان را انتخاب کنید:", reply_markup=language_keyboard())
         return {"ok": True}
 
     # --- REGISTRATION ---
@@ -340,12 +379,24 @@ async def webhook(request: Request):
         data = current_state["data"]
 
         if step == "lang":
-            sel_lang = "fa" if "فارسی" in text else "en"
+            sel_lang = None
+            t_lower = text.lower()
+            if "فارسی" in text: sel_lang = "fa"
+            elif "english" in t_lower: sel_lang = "en"
+            elif "arabic" in t_lower or "العربية" in text: sel_lang = "ar"
+            elif "russian" in t_lower or "русский" in text: sel_lang = "ru"
+            
+            if not sel_lang:
+                await send_message(chat_id, "Please select from buttons.", reply_markup=language_keyboard())
+                return {"ok": True}
+                
+            upsert_user(chat_id, lang=sel_lang)
             with sqlite3.connect(DB_NAME) as conn:
                 conn.execute("UPDATE states SET step=?, data=? WHERE chat_id=?", ("name", json.dumps({"lang": sel_lang}), chat_id))
                 conn.commit()
-            msg = "نام خود را وارد کنید:" if sel_lang=="fa" else "Enter your name:"
-            await send_message(chat_id, msg)
+            
+            name_msgs = {"fa": "نام خود را وارد کنید:", "en": "Enter your name:", "ar": "اكتب اسمك:", "ru": "Введите имя:"}
+            await send_message(chat_id, name_msgs[sel_lang])
             return {"ok": True}
 
         if step == "name":
@@ -358,7 +409,7 @@ async def webhook(request: Request):
             return {"ok": True}
 
     if not user_row:
-        await send_message(chat_id, "Type /start to register.")
+        await send_message(chat_id, "Type /start")
         return {"ok": True}
 
     # --- BOOKING ---
@@ -366,7 +417,7 @@ async def webhook(request: Request):
         step = current_state["step"]
         data = current_state["data"]
         
-        if "cancel" in text.lower() or "لغو" in text:
+        if "cancel" in text.lower() or "لغو" in text or "الغاء" in text or "отмена" in text.lower():
              with sqlite3.connect(DB_NAME) as conn: conn.execute("DELETE FROM states WHERE chat_id=?", (chat_id,)); conn.commit()
              await send_message(chat_id, texts["cancelled"], reply_markup=main_keyboard(lang))
              return {"ok": True}
@@ -384,33 +435,24 @@ async def webhook(request: Request):
                 with sqlite3.connect(DB_NAME) as conn: conn.execute("DELETE FROM states WHERE chat_id=?", (chat_id,)); conn.commit()
                 await send_message(chat_id, texts["no_slots"], reply_markup=main_keyboard(lang))
                 return {"ok": True}
-            
             with sqlite3.connect(DB_NAME) as conn: conn.execute("UPDATE states SET step=?, data=? WHERE chat_id=?", ("slot", json.dumps(data), chat_id)); conn.commit()
             await send_message(chat_id, texts["time_prompt"], reply_markup=slots_keyboard(slots))
             return {"ok": True}
 
         if step == "slot":
-            # تلاش برای پیدا کردن نوبت کامل از متن کوتاه دکمه
-            # کاربر: "11-20 10:00" -> دیتابیس: "2025-11-20 10:00"
-            short_txt = text
+            clicked_slot = text
             full_slot = None
-            # برای دقت بیشتر، دوباره اسلات‌ها را می‌گیریم و چک می‌کنیم کدام با متن کاربر مچ می‌شود
-            possible_slots = get_available_slots() 
-            # اما این متد فقط ۱۰ تا را برمی‌گرداند. بهتر است مستقیم کوئری بزنیم
-            # برای امنیت، فرض می‌کنیم اسلات معتبر باید در دیتابیس باشد
-            with sqlite3.connect(DB_NAME) as conn:
-                # جستجوی اسلاتی که به متن کاربر ختم می‌شود
-                found = conn.execute("SELECT datetime_str FROM slots WHERE datetime_str LIKE ? AND is_booked=0", (f"%{short_txt}",)).fetchone()
-                if found: full_slot = found[0]
-
+            all_slots = get_available_slots()
+            for s in all_slots:
+                if clicked_slot in s: full_slot = s; break
+            
             if full_slot and book_slot_atomic(full_slot, chat_id):
                 with sqlite3.connect(DB_NAME) as conn: conn.execute("DELETE FROM states WHERE chat_id=?", (chat_id,)); conn.commit()
                 await send_message(chat_id, texts["booking_done"], reply_markup=main_keyboard(lang))
                 if ADMIN_CHAT_ID:
-                    try: await send_message(int(ADMIN_CHAT_ID), f"📅 Booking:\n{user_row[0]}\n{full_slot}\n{data.get('service')}")
+                    try: await send_message(int(ADMIN_CHAT_ID), f"📅 New Booking ({lang}):\nUser: {user_row[0]}\nTime: {full_slot}\nSvc: {data.get('service')}")
                     except: pass
             else:
-                # رفرش کردن لیست برای کاربر
                 new_slots = get_available_slots()
                 await send_message(chat_id, texts["slot_taken"], reply_markup=slots_keyboard(new_slots))
             return {"ok": True}
@@ -429,23 +471,13 @@ async def webhook(request: Request):
         elif idx == 3: # Address
              await send_message(chat_id, texts["address_reply"], reply_markup=main_keyboard(lang))
         elif idx == 4: # Ask
-             await send_message(chat_id, "Please ask your question / سوال خود را بپرسید:", reply_markup=main_keyboard(lang))
+             hint = {"fa": "سوال خود را تایپ کنید...", "en": "Type your question...", "ar": "اكتب سؤالك...", "ru": "Введите вопрос..."}
+             await send_message(chat_id, hint.get(lang, "Type..."))
         return {"ok": True}
 
     # --- AI CHAT (TEXT) ---
     if user_row:
-        # فراخوانی هوش مصنوعی برای متن (پیاده‌سازی ساده با همان تابع عکس اما بدون تصویر)
-        # برای خلاصه نگه داشتن کد، اینجا می‌توان همان تابع analyze_image را با تغییرات کوچک استفاده کرد
-        # یا یک تابع جداگانه ask_gemini_text داشت.
-        # اینجا برای تکمیل بودن، یک پاسخ جنریک می‌دهم، اما شما می‌توانید تابع ask_gemini قبلی را اینجا بگذارید.
-        async with httpx.AsyncClient() as client:
-            url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
-            body = {"contents": [{"parts": [{"text": f"You are a dental receptionist. User asks: {text}. Answer in {lang}."}]}]}
-            try:
-                r = await client.post(url, headers={"Content-Type": "application/json", "x-goog-api-key": GOOGLE_API_KEY}, json=body)
-                ans = r.json()["candidates"][0]["content"]["parts"][0]["text"]
-                await send_message(chat_id, ans, reply_markup=main_keyboard(lang))
-            except:
-                await send_message(chat_id, texts["error"])
+        gemini_ans = await ask_gemini_text(text, lang)
+        await send_message(chat_id, gemini_ans, reply_markup=main_keyboard(lang))
 
     return {"ok": True}
