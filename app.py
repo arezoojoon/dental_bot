@@ -2,16 +2,14 @@ from fastapi import FastAPI, Request
 import httpx
 import os
 
-from google import genai
-from google.genai import types
-from google.genai import client as genai_client
-
 app = FastAPI()
 
 # -----------------------------------------
 # CONFIG
 # -----------------------------------------
+# در Render متغیر محیطی TELEGRAM_BOT_TOKEN را ست کن
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+# در Render متغیر محیطی GOOGLE_API_KEY را ست کن
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 TELEGRAM_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}"
 
@@ -20,7 +18,7 @@ if not TELEGRAM_TOKEN:
 if not GOOGLE_API_KEY:
     raise RuntimeError("GOOGLE_API_KEY is not set")
 
-# Optional: admin notifications
+# Optional: admin notifications (chat id مدیر برای دریافت خلاصه نوبت‌ها)
 ADMIN_CHAT_ID = os.getenv("ADMIN_CHAT_ID")  # e.g. "123456789"
 
 # In-memory states (for demo only)
@@ -98,11 +96,8 @@ def decorate_with_name(raw_answer: str, name: str | None, lang: str | None) -> s
 
 
 async def ask_gemini(question: str, name: str | None = None, lang: str | None = None) -> str:
-    """Call Google Gemini model via Google AI API."""
-    url = (
-        "https://generativelanguage.googleapis.com/v1/"
-        "models/gemini-1.5-flash:generateContent"
-    )
+    """Call Google Gemini 2.5 Flash via REST API."""
+    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
 
     system_prompt = """
 You are an AI receptionist for "Gemini Medical Center", a dental clinic in Dubai.
@@ -121,6 +116,7 @@ If user asks for diagnosis, clearly say that final diagnosis needs a dentist vis
 Be short, friendly and professional like a real receptionist.
 """
 
+    # optional context
     context_prefix = ""
     if name:
         context_prefix += f"Patient name: {name}.\n"
@@ -129,29 +125,35 @@ Be short, friendly and professional like a real receptionist.
 
     full_user_message = context_prefix + question
 
-    payload = {
+    body = {
         "contents": [
             {
                 "role": "user",
                 "parts": [
-                    {"text": system_prompt},
-                    {"text": full_user_message},
+                    {
+                        "text": system_prompt + "\n\nUser message:\n" + full_user_message
+                    }
                 ],
             }
         ]
     }
 
-    params = {"key": GOOGLE_API_KEY}
-    headers = {"Content-Type": "application/json"}
+    headers = {
+        "Content-Type": "application/json",
+        "x-goog-api-key": GOOGLE_API_KEY,
+    }
 
     async with httpx.AsyncClient(timeout=30) as client:
-        r = await client.post(url, params=params, json=payload, headers=headers)
+        r = await client.post(url, headers=headers, json=body)
         data = r.json()
 
     try:
         return data["candidates"][0]["content"]["parts"][0]["text"]
     except Exception:
-        return "متأسفانه الان نمی‌توانم پاسخ دقیقی بدهم. لطفاً چند لحظه بعد دوباره تلاش کنید."
+        return (
+            "متأسفانه الان نمی‌توانم پاسخ دقیقی بدهم. "
+            "لطفاً چند لحظه بعد دوباره تلاش کنید."
+        )
 
 
 # -----------------------------------------
