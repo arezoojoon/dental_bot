@@ -37,7 +37,7 @@ TRANS = {
         "name_prompt": "لطفاً نام و نام خانوادگی خود را وارد کنید:",
         "whatsapp_prompt": "لطفاً شماره واتساپ خود را بنویسید (مثال: 0912...):",
         "phone_prompt": "برای تکمیل ثبت‌نام، لطفاً روی دکمه زیر بزنید تا شماره شما تأیید شود:",
-        "use_button_error": "⛔️ لطفاً شماره را تایپ نکنید. حتماً از دکمه «ارسال شماره تماس» در پایین صفحه استفاده کنید.",
+        "use_button_error": "⛔️ لطفاً شماره را تایپ نکنید. حتماً از دکمه «ارسال شماره تماس» استفاده کنید.",
         "reg_complete": "ثبت‌نام با موفقیت انجام شد. خوش آمدید 🌹",
         "greeting": "{name} عزیز، ",
         "services_reply": "خدمات کلینیک:\n• ایمپلنت و کاشت دندان\n• ارتودنسی\n• لمینت و کامپوزیت\n• جرمگیری و بلیچینگ\n• عصب‌کشی و ترمیم",
@@ -139,11 +139,8 @@ TRANS = {
 def init_db():
     with sqlite3.connect(DB_NAME) as conn:
         conn.execute("PRAGMA journal_mode=WAL;")
-        # Users: chat_id, name, whatsapp, phone, lang
         conn.execute("CREATE TABLE IF NOT EXISTS users (chat_id INTEGER PRIMARY KEY, name TEXT, whatsapp TEXT, phone TEXT, lang TEXT DEFAULT 'fa')")
-        # States: flow management
         conn.execute("CREATE TABLE IF NOT EXISTS states (chat_id INTEGER PRIMARY KEY, flow_type TEXT, step TEXT, data TEXT)")
-        # Slots: booking management
         conn.execute("""
             CREATE TABLE IF NOT EXISTS slots (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -156,22 +153,15 @@ def init_db():
         conn.commit()
     ensure_future_slots()
 
-def get_dubai_now():
-    return datetime.now(DUBAI_TZ)
-
 def ensure_future_slots():
-    """Ensures slots exist for the next 7 days."""
     with sqlite3.connect(DB_NAME) as conn:
-        now = get_dubai_now()
+        now = datetime.now(DUBAI_TZ)
         for day in range(1, 8):
             date = now + timedelta(days=day)
-            # Slots every 2 hours from 10 to 20
             for hour in [10, 12, 14, 16, 18, 20]:
                 dt_str = f"{date.strftime('%Y-%m-%d')} {hour:02d}:00"
                 try: conn.execute("INSERT INTO slots (datetime_str) VALUES (?)", (dt_str,))
-                except: pass # Ignore duplicates
-        
-        # Cleanup old slots
+                except: pass
         yesterday = (now - timedelta(days=1)).strftime('%Y-%m-%d')
         conn.execute("DELETE FROM slots WHERE datetime_str < ?", (yesterday,))
         conn.commit()
@@ -202,7 +192,7 @@ def get_all_users():
 def get_available_slots():
     ensure_future_slots()
     with sqlite3.connect(DB_NAME) as conn:
-        now_str = get_dubai_now().strftime("%Y-%m-%d %H:%M")
+        now_str = datetime.now(DUBAI_TZ).strftime("%Y-%m-%d %H:%M")
         return [r[0] for r in conn.execute("SELECT datetime_str FROM slots WHERE is_booked=0 AND datetime_str > ? ORDER BY datetime_str ASC LIMIT 10", (now_str,)).fetchall()]
 
 def book_slot_atomic(dt_str, chat_id):
@@ -212,7 +202,7 @@ def book_slot_atomic(dt_str, chat_id):
         return cursor.rowcount > 0
 
 def get_pending_reminders():
-    tomorrow = (get_dubai_now() + timedelta(days=1)).strftime("%Y-%m-%d")
+    tomorrow = (datetime.now(DUBAI_TZ) + timedelta(days=1)).strftime("%Y-%m-%d")
     with sqlite3.connect(DB_NAME) as conn:
         q = """SELECT slots.id, slots.datetime_str, users.chat_id, users.name, users.lang 
                FROM slots JOIN users ON slots.booked_by = users.chat_id 
@@ -254,7 +244,6 @@ async def analyze_image_with_gemini(file_path, caption, lang):
         
         url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
         body = {"contents": [{"parts": [{"text": f"{prompt}\nUser Question: {caption}"}, {"inline_data": {"mime_type": "image/jpeg", "data": b64_img}}]}]}
-        
         async with httpx.AsyncClient(timeout=45) as client:
             r = await client.post(url, headers={"Content-Type": "application/json", "x-goog-api-key": GOOGLE_API_KEY}, json=body)
             return r.json()["candidates"][0]["content"]["parts"][0]["text"]
@@ -273,10 +262,7 @@ async def ask_gemini_text(question, lang):
 
 # --- KEYBOARDS ---
 def language_keyboard():
-    return {"keyboard": [
-        [{"text": "فارسی / Farsi"}, {"text": "English"}],
-        [{"text": "العربية / Arabic"}, {"text": "Русский / Russian"}]
-    ], "resize_keyboard": True, "one_time_keyboard": True}
+    return {"keyboard": [[{"text": "فارسی / Farsi"}, {"text": "English"}], [{"text": "العربية / Arabic"}, {"text": "Русский / Russian"}]], "resize_keyboard": True, "one_time_keyboard": True}
 
 def contact_keyboard(lang):
     text = TRANS.get(lang, TRANS["en"])["share_contact"]
@@ -290,21 +276,28 @@ def slots_keyboard(slots):
     kb = []
     row = []
     for s in slots:
-        display = s[5:] # Remove year for display
-        row.append({"text": display})
+        row.append({"text": s[5:]})
         if len(row) == 2: kb.append(row); row=[]
     if row: kb.append(row)
     kb.append([{"text": "Cancel"}])
     return {"keyboard": kb, "resize_keyboard": True}
 
+def get_all_menu_buttons():
+    """لیست تمام دکمه‌های منو در تمام زبان‌ها برای جلوگیری از تداخل"""
+    all_btns = []
+    for l in TRANS:
+        for row in TRANS[l]["buttons"]:
+            all_btns.extend(row)
+    return set(all_btns)
+
 # -----------------------------------------
-# ROUTES & HANDLERS
+# ROUTES
 # -----------------------------------------
 @app.on_event("startup")
 def startup_event(): init_db()
 
 @app.get("/")
-async def root(): return {"status": "ok", "message": "Dental Bot V7 (Final)"}
+async def root(): return {"status": "ok", "message": "Dental Bot V9 (Final)"}
 
 @app.get("/trigger-reminders")
 async def trigger_reminders():
@@ -334,13 +327,12 @@ async def webhook(request: Request):
     # --- ADMIN BROADCAST ---
     if str(chat_id) == str(ADMIN_CHAT_ID) and text.startswith("/broadcast"):
         body = text.replace("/broadcast", "").strip()
-        if body:
-            users = get_all_users()
-            for u in users: await send_message(u, "📢 " + body)
-            await send_message(chat_id, f"Sent to {len(users)} users.")
+        users = get_all_users()
+        for u in users: await send_message(u, "📢 " + body)
+        await send_message(chat_id, f"Sent to {len(users)} users.")
         return {"ok": True}
 
-    # Load User & State
+    # Load State
     with sqlite3.connect(DB_NAME) as conn:
         state_row = conn.execute("SELECT flow_type, step, data FROM states WHERE chat_id=?", (chat_id,)).fetchone()
         current_state = {"flow_type": state_row[0], "step": state_row[1], "data": json.loads(state_row[2])} if state_row else None
@@ -350,7 +342,16 @@ async def webhook(request: Request):
     lang = user_row[3] if user_row else "en"
     texts = TRANS.get(lang, TRANS["en"])
 
-    # --- IMAGE (TELEDENTISTRY) ---
+    # --- GLOBAL INTERCEPTOR (رفع باگ تداخل منو) ---
+    # اگر کاربر در هر مرحله‌ای دکمه منو را زد، آن را به عنوان دستور جدید اجرا کن
+    all_menu_btns = get_all_menu_buttons()
+    if text in all_menu_btns:
+        # پاک کردن وضعیت قبلی (مثل وسط رزرو)
+        with sqlite3.connect(DB_NAME) as conn: conn.execute("DELETE FROM states WHERE chat_id=?", (chat_id,)); conn.commit()
+        current_state = None 
+        # ادامه می‌دهد تا در هندلر منو پردازش شود
+
+    # --- IMAGE ---
     if msg.get("photo"):
         if not user_row:
             await send_message(chat_id, "Please register first / لطفاً ثبت‌نام کنید")
@@ -365,10 +366,10 @@ async def webhook(request: Request):
         if f_info:
             res = await analyze_image_with_gemini(f_info["file_path"], msg.get("caption", ""), lang)
             prefix = texts["greeting"].format(name=user_name)
-            await send_message(chat_id, f"{prefix}\n\n🦷 **AI Analysis:**\n{res}{texts['photo_disclaimer']}", reply_markup=main_keyboard(lang))
+            await send_message(chat_id, f"{prefix}\n🦷 **AI:**\n{res}{texts['photo_disclaimer']}", reply_markup=main_keyboard(lang))
         return {"ok": True}
 
-    # --- CONTACT VERIFICATION ---
+    # --- CONTACT ---
     if current_state and current_state["step"] == "phone":
         if msg.get("contact"):
             contact = msg["contact"]
@@ -403,11 +404,11 @@ async def webhook(request: Request):
 
         if step == "lang":
             sel_lang = None
-            t_lower = text.lower()
+            t_l = text.lower()
             if "فارسی" in text: sel_lang = "fa"
-            elif "english" in t_lower: sel_lang = "en"
-            elif "arabic" in t_lower or "العربية" in text: sel_lang = "ar"
-            elif "russian" in t_lower or "русский" in text: sel_lang = "ru"
+            elif "english" in t_l: sel_lang = "en"
+            elif "arabic" in t_l or "العربية" in text: sel_lang = "ar"
+            elif "russian" in t_l or "русский" in text: sel_lang = "ru"
             
             if not sel_lang:
                 await send_message(chat_id, "Please select from buttons.", reply_markup=language_keyboard())
@@ -418,10 +419,16 @@ async def webhook(request: Request):
                 conn.execute("UPDATE states SET step=?, data=? WHERE chat_id=?", ("name", json.dumps({"lang": sel_lang}), chat_id))
                 conn.commit()
             
-            await send_message(chat_id, TRANS[sel_lang]["name_prompt"])
+            # حذف کیبورد زبان برای جلوگیری از تداخل
+            await send_message(chat_id, TRANS[sel_lang]["name_prompt"], reply_markup={"remove_keyboard": True})
             return {"ok": True}
 
         if step == "name":
+            # جلوگیری از ذخیره نام دکمه‌ها به عنوان اسم
+            if text.strip() in ["English", "فارسی / Farsi", "العربية / Arabic", "Русский / Russian"]:
+                await send_message(chat_id, TRANS[data["lang"]]["name_prompt"])
+                return {"ok": True}
+
             data["name"] = text
             with sqlite3.connect(DB_NAME) as conn:
                 conn.execute("UPDATE states SET step=?, data=? WHERE chat_id=?", ("whatsapp", json.dumps(data), chat_id))
@@ -470,10 +477,9 @@ async def webhook(request: Request):
 
         if step == "slot":
             clicked_slot = text
-            # FIX: Database Search instead of List Loop
+            # رفع باگ اسلات‌های نامرئی: جستجوی مستقیم در دیتابیس
             full_slot = None
             with sqlite3.connect(DB_NAME) as conn:
-                # جستجوی دقیق در دیتابیس برای اسلات انتخاب شده
                 found = conn.execute("SELECT datetime_str FROM slots WHERE datetime_str LIKE ? AND is_booked=0", (f"%{clicked_slot}",)).fetchone()
                 if found: full_slot = found[0]
 
@@ -481,7 +487,7 @@ async def webhook(request: Request):
                 with sqlite3.connect(DB_NAME) as conn: conn.execute("DELETE FROM states WHERE chat_id=?", (chat_id,)); conn.commit()
                 await send_message(chat_id, texts["booking_done"], reply_markup=main_keyboard(lang))
                 if ADMIN_CHAT_ID:
-                    try: await send_message(int(ADMIN_CHAT_ID), f"📅 New Booking ({lang}):\nUser: {user_name}\nPhone: {user_row[2]}\nTime: {full_slot}")
+                    try: await send_message(int(ADMIN_CHAT_ID), f"📅 New Booking ({lang}):\nUser: {user_name}\nWA: {user_row[1]}\nPhone: {user_row[2]}\nTime: {full_slot}")
                     except: pass
             else:
                 new_slots = get_available_slots()
